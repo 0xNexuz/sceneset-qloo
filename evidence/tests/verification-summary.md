@@ -1,34 +1,26 @@
-# Backend verification summary
+# SceneSet verification summary
 
-Verified locally on 2026-10-17 using Node.js 24 on Windows x64.
+Verified on 2026-10-20 with Node.js 24 on Windows x64 and production Vercel deployments.
 
 ## Passed gates
 
-- `npm run typecheck` — exit 0.
-- `npm test` — exit 0; 1 test file and 3 tests passed.
-- `npm run build` — exit 0; Eve/Nitro emitted a 15.4 MB Node server bundle at `backend/.output`.
-- `npm run dev -- --no-ui` — boot smoke test reached `server listening at http://127.0.0.1:2000/`; the test process was then stopped.
+- Backend `npm run typecheck` — exit 0.
+- Backend deterministic suite — 8 tests passed; credentialed suites skipped by default.
+- Backend `npm run build` — exit 0; Eve/Nitro emitted a 15.4 MB production bundle.
+- Credentialed `city-pulse.live.test.ts` — passed against the Qloo hackathon server; four provider calls and receipt verification.
+- Frontend `npm run typecheck` — exit 0.
+- Frontend `npm run build` — exit 0; Vite production bundle emitted.
+- Local browser E2E — “Afrobeats parties” rendered Qloo tags, three city scores, twelve place names, the selected market, and explicit non-calendar limits.
+- Production API smoke — `POST https://sceneset-qloo-api.vercel.app/api/city-pulse` returned `COMPLETE`, three comparisons, four provider calls, and a 64-character SHA-256 seal.
+- Deployed browser E2E — `https://sceneset-qloo.vercel.app` completed the same anonymous live journey and visibly rendered the selected city.
 
-The deterministic tests cover winning-city selection, Taste Receipt seal verification and mutation detection, and rejection of an underspecified brief. They use a labeled fake Qloo provider; they are not evidence of a live Qloo call.
+## Evidence boundary
 
-## Dependency review
+- `evidence/qloo/live-city-pulse.json` is redacted live evidence. It contains no credential.
+- Place recommendations and affinities come from Qloo.
+- SceneSet does not verify scheduled events, dates, tickets, opening hours, booking availability, attendance, or revenue.
+- Devpost registration, video upload, and final form submission have not been inspected or performed.
 
-`npm audit --omit=dev` reports four moderate advisories inherited through Eve's Windows `just-bash` sandbox dependency. No non-breaking upstream fix is currently offered. The high-severity nested `undici` advisory was removed with a package override to 7.30.1. Eve's default shell, filesystem, and web tools are disabled for this agent.
+## Dependency note
 
-## Outstanding external gates
-
-- `QLOO_API_KEY` was absent, so live Qloo execution is unverified.
-- No hosted deployment or public health check exists.
-- No model-provider conversational run was performed.
-- Frontend, browser E2E, adversarial tests, and ablation evidence remain open.
-
-This document is a verification record, not a claim that the product is submission-ready.
-
-## Frontend verification
-
-- `frontend/npm run typecheck` — exit 0.
-- `frontend/npm run build` — exit 0; Vite emitted the production bundle.
-- Desktop render smoke test — passed with both supplied reference assets visible.
-- Brief interaction — passed; a valid local draft changes the preview to `Ready for Qloo` while keeping execution gated on the live key.
-- Responsive render at 390 × 844 — passed.
-- Browser console warnings/errors — none reported.
+The production install reports four moderate advisories inherited through Eve's sandbox dependency chain. The agent disables Eve's optional default shell, filesystem, and web tools. No forced breaking dependency upgrade was applied.

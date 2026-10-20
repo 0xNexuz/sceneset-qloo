@@ -13,8 +13,8 @@ A material capability becomes COMPLETE only when implementation exists, an invar
 - P2: reusable receipt SDK and developer documentation
 - P3: maps, animations, exports, optional polish
 
-Overall status: **BACKEND CORE + INTERACTIVE FRONTEND IMPLEMENTED; LIVE INTEGRATION BLOCKED**  
-Conservative readiness: **54/100**  
-P0 release work: hosted demo, public repository, and deployed verification. Qloo access, live evidence, frontend/backend integration, license, submission copy, and demo script are complete.  
-Last verified: 2026-10-17 (backend and frontend typechecks/builds passed; 3 backend tests passed; browser interaction and responsive smoke tests passed)
+Overall status: **DEPLOYED AND SUBMISSION-DRAFT READY**  
+Conservative readiness: **92/100**  
+P0 release work: record the demo and complete the Devpost form. Registration state remains user-owned and unverified.  
+Last verified: 2026-10-20 (8 deterministic tests, credentialed live test, both production builds, public repository, production API smoke, and deployed browser E2E passed)
 

@@ -58,9 +58,15 @@ The frontend defaults to `http://127.0.0.1:2000` and can be pointed elsewhere wi
 
 ## Remaining release work
 
-- Deploy the backend and frontend to Vercel, configure secrets server-side, and run an anonymous deployed E2E check.
-- Publish the authorized public GitHub repository after a secret scan.
-- Paste the saved draft into Devpost and record the walkthrough; actual Devpost submission remains a separate explicit action.
+- Record the walkthrough from the deployed app.
+- Paste the saved draft and links into Devpost; actual Devpost submission remains a separate explicit action.
+
+## Published artifacts
+
+- Public repository: `https://github.com/0xNexuz/sceneset-qloo`
+- Frontend: `https://sceneset-qloo.vercel.app`
+- Backend: `https://sceneset-qloo-api.vercel.app`
+- Deployed browser test: “Afrobeats parties” completed across Lagos, Accra, and London and rendered the selected city, tags, place shortlist, scores, truth boundary, and sealed provider evidence.
 
 ## Environment caution
 

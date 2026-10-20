@@ -4,6 +4,9 @@
 
 SceneSet is a Qloo-grounded city-scene discovery agent built for the Qloo Agentic Hackathon. A user searches a genre, mood, cuisine, or scene—such as “Afrobeats parties”—and compares two to five cities. SceneSet resolves that language to Qloo taste tags, retrieves real place recommendations for every city, applies one deterministic scoring policy, and seals the decision in a tamper-evident Taste Receipt.
 
+**Live demo:** https://sceneset-qloo.vercel.app  
+**Agent API:** https://sceneset-qloo-api.vercel.app
+
 > SceneSet recommends culturally relevant places. It does not claim to provide scheduled events, opening hours, ticket inventory, availability, attendance, or revenue forecasts.
 
 ## Why Qloo matters

@@ -1,0 +1,111 @@
+{
+  "generatedAt": "2026-10-20T14:22:48.260Z",
+  "provider": "hackathon.api.qloo.com",
+  "query": "Afrobeats parties",
+  "resolvedTags": [
+    {
+      "id": "urn:tag:good_for:qloo:afrobeat_parties",
+      "name": "Afrobeat Parties",
+      "type": "urn:tag:good_for:qloo"
+    },
+    {
+      "id": "urn:tag:good_for:qloo:afro_beats_parties",
+      "name": "Afro Beats Parties",
+      "type": "urn:tag:good_for:qloo"
+    },
+    {
+      "id": "urn:tag:good_for:qloo:private_parties",
+      "name": "Private Parties",
+      "type": "urn:tag:good_for:qloo"
+    }
+  ],
+  "selectedCity": "London",
+  "comparisons": [
+    {
+      "city": "London",
+      "score": 0.8478,
+      "candidateCount": 6,
+      "topPlaces": [
+        {
+          "id": "398E1CC1-78EE-442D-8546-CA8E21954E2A",
+          "name": "Imperial Arms Pub & Courtyard Bistro",
+          "affinity": 0.8478639975375599
+        },
+        {
+          "id": "AF6AAA5D-3C72-4367-A888-02CF2E330C42",
+          "name": "The Farmers Mistress",
+          "affinity": 0.8478022161072614
+        },
+        {
+          "id": "60F8805E-B64A-466A-B1B5-CF0C05046A1A",
+          "name": "Gipsy Queen",
+          "affinity": 0.8477986856634127
+        },
+        {
+          "id": "6D786B8C-7AA0-4D29-8689-A94DA9DCF97A",
+          "name": "Chapter One",
+          "affinity": 0.8477333709624866
+        }
+      ]
+    },
+    {
+      "city": "Accra",
+      "score": 0.765,
+      "candidateCount": 6,
+      "topPlaces": [
+        {
+          "id": "3AA9D882-F69D-4F8F-B2E5-288581D95730",
+          "name": "The Ghanaian Village Restaurant",
+          "affinity": 0.7649962877984056
+        },
+        {
+          "id": "3B7D1496-CF4F-4E9B-899D-21E058E19559",
+          "name": "Pizza Hut-East Legon 1",
+          "affinity": 0.7649962877984056
+        },
+        {
+          "id": "3CF0BF3F-F697-41CD-A57B-5B472B79F006",
+          "name": "Sweet Aroma",
+          "affinity": 0.7649962877984056
+        },
+        {
+          "id": "3E0248D7-61F8-415A-B6C3-F66EDDAE6CE7",
+          "name": "P.A Plaza",
+          "affinity": 0.7649962877984056
+        }
+      ]
+    },
+    {
+      "city": "Lagos",
+      "score": 0.765,
+      "candidateCount": 6,
+      "topPlaces": [
+        {
+          "id": "5D1FE202-1F5B-4812-B5B7-6568F0D1EC7B",
+          "name": "The Musical Village",
+          "affinity": 0.7649962877984056
+        },
+        {
+          "id": "5D5E53E4-05DA-474C-B16E-D19E4F84E9F0",
+          "name": "The Lodge on 18",
+          "affinity": 0.7649962877984056
+        },
+        {
+          "id": "5E460813-4523-4D7B-822C-25170E59DFD1",
+          "name": "The Canyon Lekki Halls & Event Centre",
+          "affinity": 0.7649962877984056
+        },
+        {
+          "id": "5EF8C240-3F30-488F-B7BD-94F2FAD9189F",
+          "name": "Crown Inn",
+          "affinity": 0.7649962877984056
+        }
+      ]
+    }
+  ],
+  "receipt": {
+    "hash": "064250a8fc73f308404750074c394dc27773576cdde95542323ba0ece39635d1",
+    "verified": true,
+    "providerCallCount": 4
+  }
+}

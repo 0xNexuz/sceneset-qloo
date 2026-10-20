@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.output/
+.eve/
+.vercel/
+.env
+.env.*
+!.env.example
+backend/.git-backup/
+frontend/scene-ui-preview.png
+*.log
+.DS_Store

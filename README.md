@@ -1,50 +1,153 @@
+<div align="center">
+
 # SceneSet
 
-**Search the culture. Find the city. Prove the recommendation.**
+### Search the culture. Find the city. Prove the recommendation.
 
-SceneSet is a Qloo-grounded city-scene discovery agent built for the Qloo Agentic Hackathon. A user searches a genre, mood, cuisine, or scene—such as “Afrobeats parties”—and compares two to five cities. SceneSet resolves that language to Qloo taste tags, retrieves real place recommendations for every city, applies one deterministic scoring policy, and seals the decision in a tamper-evident Taste Receipt.
+A Qloo-powered agent that turns a cultural intent into a ranked, inspectable city-scene shortlist.
 
-**Live demo:** https://sceneset-qloo.vercel.app  
-**Agent API:** https://sceneset-qloo-api.vercel.app
+[Live demo](https://sceneset-qloo.vercel.app) · [API](https://sceneset-qloo-api.vercel.app) · [Qloo](https://www.qloo.com/)
 
-> SceneSet recommends culturally relevant places. It does not claim to provide scheduled events, opening hours, ticket inventory, availability, attendance, or revenue forecasts.
+</div>
 
-## Why Qloo matters
+## The problem
 
-A generic language model can write a plausible city guide. It cannot credibly resolve free-text cultural intent to Qloo’s taste graph, run the same place-affinity query across multiple markets, or preserve provider fingerprints for inspection. SceneSet uses Qloo Tags and Insights as the decision substrate; the agent layer validates, scores, limits, and proves the result.
+Searching for “Afrobeats parties,” “late-night jazz,” or “food + live music” usually produces generic city guides shaped by popularity and search ranking. Those results rarely explain why a place fits the requested culture, and a language model can make a convincing recommendation without evidence.
 
-## Live flow
+SceneSet starts with taste. It resolves a free-text cultural query against Qloo, compares real place affinities across two to five cities, applies the same deterministic scoring policy to every market, and exposes the evidence behind the winner.
 
-1. Search a cultural scene in plain language.
-2. Select two to five cities.
-3. Qloo resolves the intent to taste tags.
-4. Qloo returns place affinities for each city.
-5. SceneSet ranks markets using the mean affinity of the top three candidates.
-6. A SHA-256 Taste Receipt records inputs, resolved tags, provider-call fingerprints, comparisons, decision, limitations, and execution mode.
+> SceneSet recommends culturally relevant places. It does not claim to verify scheduled events, opening hours, ticket inventory, booking availability, attendance, or revenue.
 
-## Repository
+## What it does
 
-- `frontend/` — React + Vite experience based exclusively on the two supplied visual references.
-- `backend/` — Eve agent, direct browser routes, Qloo adapter, deterministic scoring, and receipt verification.
-- `evidence/` — redacted credentialed Qloo run artifacts.
-- `docs/build-harness/` — architecture, threat model, test/evidence plans, demo, and submission mapping.
-- `docs/SUBMISSION_DRAFT.md` — ready-to-paste Devpost copy.
-- `docs/DEMO_SCRIPT.md` — 90-second walkthrough script.
+- Accepts any genre, mood, cuisine, or scene—not a fixed artist or preset itinerary.
+- Resolves natural-language intent into real Qloo taste tags.
+- Compares place recommendations across 2–5 selected cities.
+- Ranks every city with a versioned, deterministic top-three affinity scorer.
+- Shows the resolved tags, city scores, and recommended places.
+- Generates a SHA-256 Taste Receipt containing the decision evidence.
+- Fails closed when Qloo is unavailable; it never substitutes fabricated results.
 
-## Local setup
+## Architecture
+
+```mermaid
+flowchart LR
+    U[User] -->|search + 2–5 cities| UI[React / Vite UI]
+    UI -->|POST /api/city-pulse| CH[Eve custom channel]
+
+    subgraph Backend[SceneSet agent backend]
+        CH --> G[Input size + rate guard]
+        G --> T[discover_city_pulse tool]
+        T --> P[Deterministic policy engine]
+        P --> R[SHA-256 Taste Receipt]
+    end
+
+    subgraph Qloo[Qloo Taste AI]
+        QT[Tags API]
+        QI[Insights API]
+    end
+
+    T -->|free-text query| QT
+    QT -->|resolved tag IDs| T
+    T -->|tags + city + place filters| QI
+    QI -->|entities + affinity scores| T
+    T --> P
+    R --> CH
+    CH -->|ranked cities + places + receipt| UI
+
+    E[(Redacted live evidence)] -. verifies .-> R
+```
+
+### Decision flow
+
+1. The user enters a cultural query and selects candidate cities.
+2. The Eve tool resolves that query through Qloo Tags.
+3. The resolved tag IDs become taste signals for a Qloo Insights request in each city.
+4. SceneSet normalizes the returned place entities and affinities.
+5. Each city receives the mean affinity of its top three candidates.
+6. The highest-scoring valid city is selected and the full decision is sealed in a Taste Receipt.
+
+## Qloo sponsor integration
+
+Qloo is the product's decision substrate—not a decorative API call.
+
+| Qloo capability | How SceneSet uses it | Why it is essential |
+|---|---|---|
+| **Tags API** | Resolves searches such as `Afrobeats parties` into Qloo tag URNs. | Converts ambiguous language into taste-graph signals instead of relying on model memory. |
+| **Insights API** | Queries place entities using the resolved tags and a city location signal. | Produces the real candidates and affinity values that SceneSet is allowed to rank. |
+| **Cross-market consistency** | Sends the same tags, filters, take limit, and scorer across every city. | Makes the city comparison explainable and reproducible. |
+| **Entity provenance** | Preserves returned Qloo entity IDs and request fingerprints in the receipt. | Prevents an unsupported place from silently entering the recommendation. |
+
+For one three-city search, SceneSet performs one Qloo tag-resolution call and one Qloo Insights call per city. The public redacted artifact at [`evidence/qloo/live-city-pulse.json`](evidence/qloo/live-city-pulse.json) records a credentialed four-call run without exposing the API key.
+
+### Example Qloo-grounded request
+
+```json
+{
+  "query": "Afrobeats parties",
+  "cities": ["Lagos", "Accra", "London"],
+  "constraints": {
+    "minRating": 4,
+    "takePerMarket": 6
+  }
+}
+```
+
+The result includes the resolved Qloo tags, ranked city comparisons, Qloo-returned places, provider-call evidence, limitations, and a 64-character SHA-256 integrity seal.
+
+## Taste Receipt
+
+Every completed run records:
+
+- original query, cities, and constraints;
+- execution mode and scorer version;
+- resolved Qloo tag IDs;
+- hashed provider-request fingerprints and result counts;
+- candidate counts, place IDs, and city scores;
+- selected city and place IDs;
+- explicit product limitations;
+- canonical SHA-256 integrity hash.
+
+Changing any sealed value causes receipt verification to fail.
+
+## Technology
+
+| Layer | Technology |
+|---|---|
+| Frontend | React, Vite, CSS |
+| Agent runtime | Eve |
+| Backend | TypeScript, Nitro |
+| Taste intelligence | Qloo Tags API, Qloo Insights API |
+| Validation | Zod |
+| Tests | Vitest |
+| Deployment | Vercel |
+
+## Run locally
 
 Requirements: Node.js 24 and a Qloo hackathon API key.
+
+### 1. Start the agent backend
 
 ```bash
 cd backend
 npm install
 cp .env.example .env.local
-# Add QLOO_API_KEY and QLOO_API_BASE_URL to .env.local
-npm run check
+```
+
+Add the server-side values to `backend/.env.local`:
+
+```dotenv
+QLOO_API_KEY=your_key_here
+QLOO_API_BASE_URL=https://hackathon.api.qloo.com
+```
+
+Then run:
+
+```bash
 npm run dev -- --no-ui
 ```
 
-In another terminal:
+### 2. Start the frontend
 
 ```bash
 cd frontend
@@ -52,40 +155,65 @@ npm install
 npm run dev
 ```
 
-The frontend defaults to `http://127.0.0.1:2000`. Set `VITE_SCENESET_API_URL` for another backend origin.
+The frontend uses `http://127.0.0.1:2000` by default. For another backend origin, set `VITE_SCENESET_API_URL` before building the frontend.
+
+## API
+
+### `POST /api/city-pulse`
+
+```bash
+curl -X POST http://127.0.0.1:2000/api/city-pulse \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "Afrobeats parties",
+    "cities": ["Lagos", "Accra", "London"],
+    "constraints": { "minRating": 4, "takePerMarket": 6 }
+  }'
+```
+
+The public route limits request size, rate-limits callers, keeps the Qloo key server-side, and disables caching of responses.
 
 ## Verification
 
 ```bash
 cd backend
-npm run typecheck
-npm test -- --run
-npm run build
+npm run check
 
-# Credentialed Qloo proof
-QLOO_LIVE_TEST=1 npx vitest run tests/city-pulse.live.test.ts
+# Requires QLOO_API_KEY
+QLOO_LIVE_TEST=1 npm run test:live
 
 cd ../frontend
 npm run typecheck
 npm run build
 ```
 
-Verified on 2026-10-20: 8 deterministic tests passed, the Eve production bundle built, the frontend production bundle built, and the credentialed city-pulse test completed with four live Qloo calls and a verified receipt.
+Verified release evidence:
 
-## API
+- 8 deterministic tests passed.
+- Credentialed city-pulse integration passed against the Qloo hackathon server.
+- Backend and frontend production builds passed.
+- Production API returned `COMPLETE` with three comparisons, four provider calls, and a valid receipt seal.
+- Anonymous deployed browser flow completed successfully.
 
-`POST /api/city-pulse`
+See [`evidence/tests/verification-summary.md`](evidence/tests/verification-summary.md) for the exact evidence boundary.
 
-```json
-{
-  "query": "Afrobeats parties",
-  "cities": ["Lagos", "Accra", "London"],
-  "constraints": { "minRating": 4, "takePerMarket": 6 }
-}
+## Project structure
+
+```text
+.
+├── backend/
+│   ├── agent/
+│   │   ├── channels/       # Public HTTP routes
+│   │   ├── lib/            # Qloo adapter, scorer, receipt logic
+│   │   └── tools/          # Typed Eve tools
+│   └── tests/
+├── frontend/
+│   ├── public/             # Visual assets and favicon
+│   └── src/                # React interface and styles
+├── evidence/               # Redacted live and verification evidence
+└── LICENSE
 ```
-
-The public demo route is rate-limited, rejects oversized input, keeps the Qloo key server-side, and fails closed when Qloo is unavailable.
 
 ## License
 
-[MIT](LICENSE)
+SceneSet is available under the [MIT License](LICENSE).

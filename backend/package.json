@@ -14,7 +14,7 @@
     "start": "eve start",
     "typecheck": "tsc",
     "test": "vitest run",
-    "test:live": "vitest run tests/qloo.live.test.ts",
+    "test:live": "vitest run tests/city-pulse.live.test.ts tests/qloo.live.test.ts",
     "check": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {

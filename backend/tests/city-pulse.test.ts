@@ -59,8 +59,8 @@ describe("discoverCityPulse", () => {
     expect(provider.tagCalls).toEqual(["Afrobeats parties", "afrobeat"]);
     expect(provider.calls.filter((call) => call.requiredTagIds?.length)).toHaveLength(2);
     expect(result.confidence.level).toBe("low");
-    expect(result.selectedCity).toBe("Accra");
-    expect(result.confidence.summary).toContain("needs confirmation");
+    expect(result.selectedCity).toBeNull();
+    expect(result.confidence.summary).toContain("No city");
     expect(verifyCityPulseReceipt(result.receipt)).toBe(true);
   });
 

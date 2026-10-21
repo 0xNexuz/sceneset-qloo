@@ -1,11 +1,14 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { downloadReceipt, verifyReceiptInBrowser } from "./receipt";
 import "./styles.css";
 
 const tabs = ["Discover", "City pulse", "Taste receipt", "Evidence"];
 const cityOptions = ["Lagos", "Accra", "London", "Nairobi", "Johannesburg"];
 const suggestions = ["Afrobeats parties", "Late-night jazz", "Art + fashion", "Food + live music"];
 const apiBaseUrl = (import.meta.env.VITE_SCENESET_API_URL ?? "http://127.0.0.1:2000").replace(/\/$/, "");
+const chatEnabled = import.meta.env.VITE_SCENESET_CHAT_ENABLED === "true";
+const EveBridge = React.lazy(() => import("./eve-bridge"));
 
 function Mark() {
   return <span className="mark" aria-hidden="true"><span className="mark-ring" /><span className="mark-axis mark-axis-x" /><span className="mark-axis mark-axis-y" /></span>;
@@ -16,7 +19,7 @@ function Arrow() { return <span aria-hidden="true">↗</span>; }
 function Topbar({ live }) {
   return <header className="topbar">
     <a className="brand" href="#top" aria-label="SceneSet home"><Mark /><span>SCENESET</span></a>
-    <nav className="utility-nav" aria-label="Utility navigation"><a href="#discover">Discover</a><a href="#evidence">Evidence</a><span className="online"><i /> {live ? "Qloo result live" : "Qloo connected"}</span></nav>
+    <nav className="utility-nav" aria-label="Utility navigation"><a href="#discover">Discover</a><a href="#evidence">Evidence</a><span className="online"><i /> {live ? "Qloo result loaded" : "Qloo-backed search"}</span></nav>
     <span className="square-button" aria-hidden="true">⌘</span>
   </header>;
 }
@@ -41,7 +44,7 @@ function TabRail({ active, setActive }) {
   return <div className="tab-shell"><nav className="tabs" aria-label="Product sections">{tabs.map((tab, index) => <button key={tab} className={active === index ? "active" : ""} onClick={() => setActive(index)}><span>0{index + 1}</span>{tab}</button>)}</nav></div>;
 }
 
-function Discovery({ onResult }) {
+function Discovery({ onResult, onSearch }) {
   const [query, setQuery] = useState("");
   const [cities, setCities] = useState(["Lagos", "Accra", "London"]);
   const [minRating, setMinRating] = useState(4);
@@ -61,14 +64,19 @@ function Discovery({ onResult }) {
     }
     setRun({ status: "loading", message: "Resolving the signal and reading each city…" });
     try {
-      const response = await fetch(`${apiBaseUrl}/api/city-pulse`, {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ query: query.trim(), cities, constraints: { minRating, takePerMarket: 6 } }),
-      });
-      const result = await response.json();
-      if (!response.ok || result.status !== "COMPLETE") throw new Error(result.reason ?? "City discovery did not complete.");
-      setRun({ status: "complete", message: result.selectedCity ? `${result.selectedCity} has the strongest supported venue leads (${result.confidence.level} confidence).` : "No city has a sufficiently supported venue lead yet." });
-      onResult(result);
+      const brief = { query: query.trim(), cities, constraints: { minRating, takePerMarket: 6 } };
+      if (chatEnabled) {
+        await onSearch(brief);
+        setRun({ status: "complete", message: "Eve is reading the city evidence. The result will appear in City pulse." });
+      } else {
+        const response = await fetch(`${apiBaseUrl}/api/city-pulse`, {
+          method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(brief),
+        });
+        const result = await response.json();
+        if (!response.ok || result.status !== "COMPLETE") throw new Error(result.reason ?? "City discovery did not complete.");
+        setRun({ status: "complete", message: result.selectedCity ? `${result.selectedCity} has the strongest supported venue leads (${result.confidence.level} confidence).` : "No city has a sufficiently supported venue lead yet." });
+        onResult(result);
+      }
     } catch (error) {
       setRun({ status: "error", message: error instanceof Error ? error.message : "The Qloo request failed." });
     }
@@ -99,22 +107,61 @@ function Discovery({ onResult }) {
   </div>;
 }
 
-function CityPulse({ result }) {
+function EvePanel({ agent, onFollowUp }) {
+  const [message, setMessage] = useState("");
+  const busy = agent.status === "submitted" || agent.status === "streaming" || agent.status === "resuming";
+  return <section className="eve-panel" aria-label="Eve conversation">
+    <p className="eyebrow"><span>EVE / FOLLOW-UP</span> TOOL-BACKED CONVERSATION</p>
+    <div className="eve-messages" aria-live="polite">{agent.data.messages.filter((item) => item.role === "assistant").map((item) => <article key={item.id}>{item.parts.map((part, index) => part.type === "text" ? <p key={part.id ?? index}>{part.text}</p> : part.type === "dynamic-tool" ? <small key={part.toolCallId}>{part.toolMetadata?.eve?.label ?? "Checking venue evidence"}</small> : null)}</article>)}</div>
+    {agent.error && <p className="run-error" role="alert">Eve chat is unavailable. Guided refinements below still work.</p>}
+    <form onSubmit={(event) => { event.preventDefault(); const value = message.trim(); if (!value || busy) return; setMessage(""); onFollowUp(value); }}><label htmlFor="eve-followup">Ask Eve a follow-up</label><div><input id="eve-followup" value={message} maxLength={500} onChange={(event) => setMessage(event.target.value)} placeholder="Why Lagos? Exclude a venue…" disabled={busy} /><button className="button button-ink" type="submit" disabled={busy || !message.trim()}>{busy ? "Reading…" : "Ask Eve"}</button></div></form>
+  </section>;
+}
+
+function GuidedFollowUps({ result, onRefine, busy, note, agent }) {
+  const [query, setQuery] = useState(result.receipt.inputs.query);
+  const [excludedId, setExcludedId] = useState("");
+  const places = result.comparisons.flatMap((market) => market.topPlaces);
+  return <section className="guided-panel" aria-label="Guided refinements">
+    <p className="eyebrow"><span>CHALLENGE / REFINE</span> ASK THE SECOND QUESTION</p>
+    {chatEnabled ? <EvePanel agent={agent} onFollowUp={(message) => { void agent.send(message); }} /> : <p className="guided-fallback">Free-form Eve chat has not passed the live free-model gate. These guided, deterministic refinements remain available.</p>}
+    <div className="guided-actions"><button type="button" disabled={busy} onClick={() => onRefine({ action: "explain" })}>Why this ranking?</button><button type="button" disabled={busy} onClick={() => onRefine({ action: "alternatives" })}>Show alternatives</button></div>
+    <div className="guided-fields"><label>Exclude a venue<select value={excludedId} onChange={(event) => setExcludedId(event.target.value)}><option value="">Choose a venue</option>{places.map((place) => <option key={place.id} value={place.id}>{place.name}</option>)}</select></label><button type="button" disabled={busy || !excludedId} onClick={() => { onRefine({ action: "exclude", excludePlaceIds: [excludedId] }); setExcludedId(""); }}>Exclude and compare</button></div>
+    <form className="guided-fields" onSubmit={(event) => { event.preventDefault(); if (query.trim().length >= 2) onRefine({ action: "refine", query: query.trim() }); }}><label>Change the cultural search<input value={query} maxLength={120} onChange={(event) => setQuery(event.target.value)} /></label><button type="submit" disabled={busy || query.trim().length < 2}>Search again</button></form>
+    {note && <p className={note.error ? "run-error" : "run-status"} role={note.error ? "alert" : "status"}>{note.text}</p>}
+  </section>;
+}
+
+function CityPulse({ result, previous, change, onRefine, refining, note, agent }) {
   if (!result) return <div className="panel empty-panel"><p className="eyebrow"><span>PULSE / 02</span> NO RESULT YET</p><h2>Search first.<br />Then compare.</h2><p>Run a live city search to populate the ranked shortlist.</p></div>;
   return <div className="panel pulse-panel">
     <div className="pulse-heading"><p className="eyebrow"><span>PULSE / 02</span> CULTURAL EVIDENCE</p><h2>{result.selectedCity ?? "No clear city"}<br /><em>{result.selectedCity ? "leads—with caveats." : "yet."}</em></h2><p>Qloo resolved your search to {result.intent.tags.length} taste signals. SceneSet checked each returned place for relevant venue evidence and your rating threshold.</p><div className="tag-cloud">{result.intent.tags.map((tag) => <span key={tag.id}>{tag.name}</span>)}</div><div className={`confidence-card confidence-${result.confidence.level}`}><strong>{result.confidence.level} confidence · evidence strength, not probability</strong><p>{result.confidence.summary}</p>{result.confidence.reasons.map((reason) => <small key={reason}>{reason}</small>)}</div><div className="scope-card"><strong>Next step</strong><p>Open a venue link or map and confirm its current programme directly before travelling.</p><small>{result.refinement.attempted ? `A narrower Qloo search was tried: ${result.refinement.tagQuery}. ` : ""}Events, opening hours, tickets, and availability are unverified.</small></div></div>
-    <div className="city-results">{result.comparisons.map((market, index) => <article className={`city-result ${result.selectedCity === market.city ? "winner" : ""}`} key={market.city} style={{ "--delay": `${index * 80}ms` }}><header><span>0{index + 1}</span><h3>{market.city}</h3><strong>{market.score} <small>evidence pts</small></strong></header><p className="market-explanation">{market.explanation} {market.rejectedCount} of {market.candidateCount} returned places excluded.</p><div className="place-list">{market.topPlaces.length ? market.topPlaces.map((place) => <div className="place-card" key={place.id}><div className="place-title"><strong>{place.name}</strong><span>{place.fit.level === "direct" ? "Cultural mention" : "Venue lead"}</span></div><p>{place.venue.description ?? place.venue.category ?? "Qloo place listing"}</p><small>{place.fit.reason}</small><div className="place-meta">{place.venue.rating && <span>★ {place.venue.rating}</span>}{place.venue.category && <span>{place.venue.category}</span>}{place.venue.address && <span>{place.venue.address}</span>}</div><div className="place-actions">{place.venue.website && <a href={place.venue.website} target="_blank" rel="noopener noreferrer">Venue website ↗</a>}<a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([place.name, place.venue.address, market.city].filter(Boolean).join(", "))}`} target="_blank" rel="noopener noreferrer">Find on map ↗</a></div></div>) : <p className="no-place">No returned venue cleared the cultural and quality checks.</p>}</div>{result.selectedCity === market.city && <footer>BEST SUPPORTED LEAD · CHECK CURRENT EVENTS</footer>}</article>)}</div>
+    <div className="city-results">{previous && change && <div className="comparison-strip"><strong>Before → after</strong><span>{previous.selectedCity ?? "No supported city"} ({previous.confidence.level}) → {result.selectedCity ?? "No supported city"} ({result.confidence.level})</span><small>{change.changed?.join(" · ") || "No preferences changed"} · Qloo {change.qlooCalled ? "called" : "not called"}</small></div>}{result.comparisons.map((market, index) => <article className={`city-result ${result.selectedCity === market.city ? "winner" : ""}`} key={market.city} style={{ "--delay": `${index * 80}ms` }}><header><span>0{index + 1}</span><h3>{market.city}</h3><strong>{market.score} <small>evidence pts</small></strong></header><p className="market-explanation">{market.explanation} {market.rejectedCount} of {market.candidateCount} returned places excluded.</p><div className="place-list">{market.topPlaces.length ? market.topPlaces.map((place) => <div className="place-card" key={place.id}><div className="place-title"><strong>{place.name}</strong><span>{place.fit.level === "direct" ? "Cultural mention" : "Venue lead"}</span></div><p>{place.venue.description ?? place.venue.category ?? "Qloo place listing"}</p><small>{place.fit.reason}</small><div className="place-meta">{place.venue.rating && <span>★ {place.venue.rating}</span>}{place.venue.category && <span>{place.venue.category}</span>}{place.venue.address && <span>{place.venue.address}</span>}</div><div className="place-actions">{place.venue.website && <a href={place.venue.website} target="_blank" rel="noopener noreferrer">Venue website ↗</a>}<a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([place.name, place.venue.address, market.city].filter(Boolean).join(", "))}`} target="_blank" rel="noopener noreferrer">Find on map ↗</a></div></div>) : <p className="no-place">No returned venue cleared the cultural and quality checks.</p>}</div>{result.selectedCity === market.city && <footer>BEST SUPPORTED LEAD · CHECK CURRENT EVENTS</footer>}</article>)}<GuidedFollowUps key={result.receipt.createdAt} result={result} onRefine={onRefine} busy={refining} note={note} agent={agent} /></div>
   </div>;
 }
 
 function Receipt({ result }) {
   const receipt = result?.receipt;
+  const [verification, setVerification] = useState("");
+  useEffect(() => { setVerification(""); }, [receipt?.integrity.hash]);
+  async function check(value) {
+    try { setVerification(await verifyReceiptInBrowser(value) ? "Embedded hash matches. This does not prove Qloo provenance or real-world accuracy." : "Mismatch: receipt contents differ from the embedded hash."); }
+    catch { setVerification("Could not read this receipt as valid JSON."); }
+  }
+  async function upload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > 128_000) { setVerification("Receipt file is too large (128 KB maximum)."); return; }
+    try { await check(JSON.parse(await file.text())); } catch { setVerification("Could not read this receipt as valid JSON."); }
+    event.target.value = "";
+  }
   return <div className="panel receipt-panel"><div className="receipt-art" aria-hidden="true"><img src="/scene-blueprint.png" alt="" /></div><div className="receipt-paper">
     <div className="receipt-title"><Mark /><span>TASTE RECEIPT</span><small>{receipt ? "LIVE / SEALED" : "AWAITING SEARCH"}</small></div>
     <div className="receipt-hash">SHA-256&nbsp;&nbsp;{receipt?.integrity.hash ?? "— — — — — — — — — — — — — — — —"}</div>
-    <div className="receipt-grid"><div><small>QUERY PROVENANCE</small><strong>{receipt ? `${receipt.resolvedTags.length} Qloo tags` : "Qloo tags only"}</strong></div><div><small>SCORER</small><strong>Cultural evidence v2</strong></div><div><small>PROVIDER CALLS</small><strong>{receipt ? receipt.providerCalls.length : "—"}</strong></div><div><small>SEAL STATUS</small><strong>{receipt ? "Integrity sealed" : "Not generated"}</strong></div></div>
-    <p>A canonical record of the query, resolved taste tags, request fingerprints, place candidates, ranking policy, and selected city. Change one byte and verification fails.</p>
-    <button className="button button-ink" disabled={!receipt}>{receipt ? `Selected: ${result.selectedCity ?? "No supported city"}` : "Search to generate proof"}</button>
+    <div className="receipt-grid"><div><small>QUERY RECORD</small><strong>{receipt ? `${receipt.resolvedTags.length} Qloo tags` : "Qloo tags only"}</strong></div><div><small>SCORER</small><strong>{receipt?.scorerVersion ?? "Cultural evidence v2.1"}</strong></div><div><small>PROVIDER CALLS</small><strong>{receipt ? receipt.providerCalls.length : "—"}</strong></div><div><small>REFINEMENTS</small><strong>{receipt?.refinementHistory?.length ?? "—"}</strong></div></div>
+    <p>A canonical record of the query, tag resolution, request fingerprints, venue evidence, refinements, and decision. Its unkeyed hash checks internal consistency only—not Qloo provenance, current events, or real-world accuracy.</p>
+    <div className="receipt-actions"><button className="button button-ink" disabled={!receipt} onClick={() => receipt && downloadReceipt(receipt)}>Download JSON receipt</button><button type="button" disabled={!receipt} onClick={() => receipt && check(receipt)}>Verify current receipt</button><label>Verify a saved receipt<input type="file" accept=".json,application/json" onChange={upload} /></label></div>
+    {verification && <p role="status" className="receipt-verification">{verification}</p>}
   </div></div>;
 }
 
@@ -127,10 +174,66 @@ function Evidence({ result }) {
   </div></div>;
 }
 
-function App() {
-  const [active, setActive] = useState(0); const [result, setResult] = useState(null);
+function SceneApp({ agent }) {
+  const [active, setActive] = useState(0);
+  const [result, setResult] = useState(null);
+  const [previous, setPrevious] = useState(null);
+  const [change, setChange] = useState(null);
+  const [refining, setRefining] = useState(false);
+  const [note, setNote] = useState(null);
+  const handledTools = useRef(new Set());
+  const pendingBrief = useRef(null);
+  async function fallbackDiscovery(brief) {
+    const response = await fetch(`${apiBaseUrl}/api/city-pulse`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(brief) });
+    const value = await response.json();
+    if (!response.ok || value.status !== "COMPLETE") throw new Error(value.reason ?? "Guided discovery failed.");
+    setResult(value); setPrevious(null); setChange(null); setActive(1);
+    setNote({ text: "Eve chat is unavailable. Qloo-backed guided discovery and follow-ups remain usable." });
+  }
+  useEffect(() => {
+    if (!chatEnabled || !agent) return;
+    for (const message of agent.data.messages) for (const part of message.parts) {
+      if (part.type !== "dynamic-tool" || part.state !== "output-available" || handledTools.current.has(part.toolCallId)) continue;
+      handledTools.current.add(part.toolCallId);
+      let output = part.output;
+      if (typeof output === "string") { try { output = JSON.parse(output); } catch { continue; } }
+      const next = output?.result?.status === "COMPLETE" ? output.result : output?.status === "COMPLETE" ? output : null;
+      if (next) { pendingBrief.current = null; setResult((current) => { if (current) setPrevious(current); return next; }); setChange(output?.changed ? { changed: output.changed, qlooCalled: output.qlooCalled } : null); setActive(1); }
+    }
+  }, [agent?.data.messages]);
+  useEffect(() => {
+    if (!chatEnabled || !agent?.error || !pendingBrief.current) return;
+    const brief = pendingBrief.current;
+    pendingBrief.current = null;
+    void fallbackDiscovery(brief).catch((error) => setNote({ error: true, text: error instanceof Error ? error.message : "Guided discovery failed." }));
+  }, [agent?.error]);
+  async function startEveSearch(brief) {
+    if (!agent) throw new Error("Eve chat is unavailable. Use guided search instead.");
+    agent.reset(); handledTools.current.clear(); setPrevious(null); setChange(null);
+    pendingBrief.current = brief;
+    try { await agent.send(`Discover this scene using discover_city_pulse. Use exactly this structured brief: ${JSON.stringify(brief)}. Report only tool-backed evidence.`); }
+    catch { if (pendingBrief.current) { pendingBrief.current = null; await fallbackDiscovery(brief); } }
+  }
+  async function guidedRefine(request) {
+    if (!result || refining) return;
+    setRefining(true); setNote({ text: "Reviewing existing evidence…" });
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/refine-city-pulse`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prior: result, request }) });
+      const outcome = await response.json();
+      if (!response.ok || outcome.result?.status !== "COMPLETE") throw new Error(outcome.reason ?? outcome.result?.reason ?? "Refinement did not complete.");
+      if (outcome.result.receipt.integrity.hash !== result.receipt.integrity.hash) { setPrevious(result); setResult(outcome.result); setChange({ changed: outcome.changed, qlooCalled: outcome.qlooCalled }); }
+      setNote({ text: `${outcome.changed.join(" · ")}. Qloo ${outcome.qlooCalled ? "was called" : "was not called"}.` });
+    } catch (error) { setNote({ error: true, text: error instanceof Error ? error.message : "Refinement failed." }); }
+    finally { setRefining(false); }
+  }
   function start() { setActive(0); window.setTimeout(() => document.querySelector(".tab-shell")?.scrollIntoView({ behavior: "smooth", block: "start" }), 30); }
-  return <div className="app-shell"><Topbar live={Boolean(result)} /><Hero onStart={start} /><TabRail active={active} setActive={setActive} /><section className="content-stage">{active === 0 && <Discovery onResult={(value) => { setResult(value); setActive(1); }} />}{active === 1 && <CityPulse result={result} />}{active === 2 && <Receipt result={result} />}{active === 3 && <Evidence result={result} />}</section><footer><div><Mark /><strong>SCENESET</strong></div><p>Culture is not a demographic.<br />Search accordingly.</p><div className="footer-meta"><span>QLOO AGENTIC HACKATHON</span><span>BUILD / 2026</span></div></footer></div>;
+  return <div className="app-shell"><Topbar live={Boolean(result)} /><Hero onStart={start} /><TabRail active={active} setActive={setActive} /><section className="content-stage">{active === 0 && <Discovery onSearch={startEveSearch} onResult={(value) => { setResult(value); setPrevious(null); setChange(null); setActive(1); }} />}{active === 1 && <CityPulse result={result} previous={previous} change={change} onRefine={guidedRefine} refining={refining} note={note} agent={agent} />}{active === 2 && <Receipt result={result} />}{active === 3 && <Evidence result={result} />}</section><footer><div><Mark /><strong>SCENESET</strong></div><p>Culture is not a demographic.<br />Search accordingly.</p><div className="footer-meta"><span>QLOO AGENTIC HACKATHON</span><span>BUILD / 2026</span></div></footer></div>;
+}
+
+function App() {
+  return chatEnabled
+    ? <React.Suspense fallback={<p className="app-loading">Preparing Eve…</p>}><EveBridge host={apiBaseUrl}>{(agent) => <SceneApp agent={agent} />}</EveBridge></React.Suspense>
+    : <SceneApp agent={null} />;
 }
 
 createRoot(document.getElementById("root")).render(<App />);

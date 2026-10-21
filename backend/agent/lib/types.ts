@@ -81,6 +81,7 @@ export interface CityPlace extends QlooEntity {
   fit: {
     level: "direct" | "scene";
     reason: string;
+    evidence?: string[];
   };
   venue: {
     category?: string;
@@ -136,10 +137,10 @@ export interface TasteReceipt {
 }
 
 export interface CityPulseReceipt {
-  schemaVersion: "1.0";
+  schemaVersion: "1.0" | "1.1";
   createdAt: string;
   executionMode: ExecutionMode;
-  scorerVersion: "cultural-evidence-v2";
+  scorerVersion: "cultural-evidence-v2" | "cultural-evidence-v2.1";
   inputs: CityPulseBrief;
   resolvedTags: QlooTag[];
   providerCalls: QlooCallEvidence[];
@@ -148,6 +149,8 @@ export interface CityPulseReceipt {
   confidence: CityPulseConfidence;
   decision: { city: string | null; placeIds: string[] };
   limitations: string[];
+  refinementHistory?: Array<{ query: string; cities: string[]; changed: string[]; qlooCalled: boolean }>;
+  evidenceSummaries?: Array<{ city: string; direct: number; plausible: number; rejected: number }>;
   integrity: { algorithm: "sha256"; hash: string };
 }
 

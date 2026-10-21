@@ -8,6 +8,8 @@ A Qloo-powered agent that turns a cultural intent into a ranked, inspectable cit
 
 [Live demo](https://sceneset-qloo.vercel.app) · [API](https://sceneset-qloo-api.vercel.app) · [Qloo](https://www.qloo.com/)
 
+> The links above are the earlier deployed version. This local branch is **not deployed**. Free-form Eve chat is **disabled**: the live `reflection/beam-free` tool-call preflight returned HTTP 403 for the current project. No paid model fallback is configured. Discovery and guided refinements remain the working path.
+
 </div>
 
 ## The problem
@@ -25,39 +27,32 @@ SceneSet starts with taste. It resolves a free-text cultural query against Qloo,
 - Compares place recommendations across 2–5 selected cities.
 - Rejects unsupported or under-rated places locally, then ranks cities by qualified cultural evidence—not raw cross-query affinity.
 - Automatically retries with a narrower Qloo tag filter when the first pass has no explicit cultural matches.
+- Evaluates multi-part intent together: “food + live music” requires evidence for both; a restaurant alone does not pass.
+- Provides guided why/alternatives/exclusion follow-ups from cached evidence, and fresh Qloo searches when preferences change. Each response says whether Qloo was called.
 - Shows venue context, practical links, explanations, and confidence; it can select no city when evidence is insufficient.
-- Generates a SHA-256 Taste Receipt containing the decision evidence.
+- Downloads a versioned SHA-256 Taste Receipt and checks its embedded hash in-browser (including older `1.0` receipts).
 - Fails closed when Qloo is unavailable; it never substitutes fabricated results.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    U[User] -->|search + 2–5 cities| UI[React / Vite UI]
-    UI -->|POST /api/city-pulse| CH[Eve custom channel]
-
-    subgraph Backend[SceneSet agent backend]
-        CH --> G[Input size + rate guard]
-        G --> T[discover_city_pulse tool]
-        T --> P[Deterministic policy engine]
-        P --> R[SHA-256 Taste Receipt]
-    end
-
-    subgraph Qloo[Qloo Taste AI]
-        QT[Tags API]
-        QI[Insights API]
-    end
-
-    T -->|free-text query| QT
-    QT -->|resolved tag IDs| T
-    T -->|tags + city + place filters| QI
-    QI -->|entities + affinity scores| T
-    P -->|weak match: focused tag retry| T
-    T --> P
-    R --> CH
-    CH -->|ranked cities + places + receipt| UI
-
-    E[(Redacted live evidence)] -. verifies .-> R
+    U[Browser] --> UI[React / Vite]
+    UI -->|discovery| API[POST /api/city-pulse]
+    UI -->|guided follow-up| REF[POST /api/refine-city-pulse]
+    UI -. gated chat .-> EVE[Eve durable session]
+    EVE --> D[discover_city_pulse]
+    EVE --> RT[refine_city_pulse]
+    API --> D
+    REF --> RE[Cached or fresh refinement]
+    RT --> RE
+    D --> Q[Qloo Tags + Insights]
+    RE -->|changed signals| Q
+    D --> S[cultural-evidence-v2.1 scorer]
+    RE --> S
+    S --> R[Versioned receipt + SHA-256]
+    R --> UI
+    UI --> V[Browser hash comparison]
 ```
 
 ### Decision flow
@@ -65,10 +60,10 @@ flowchart LR
 1. The user enters a cultural query and selects candidate cities.
 2. The Eve tool resolves that query through Qloo Tags.
 3. The resolved tag IDs become taste signals for a Qloo Insights request in each city.
-4. SceneSet rejects places lacking venue/genre support or failing user quality constraints. It distinguishes a direct cultural mention from a plausible setting whose programming is unverified.
+4. SceneSet rejects places lacking evidence for **every requested facet** or failing user quality constraints. It distinguishes direct detail from a plausible setting whose programming is unverified.
 5. If no direct match appears, the Eve tool searches a narrower cultural term and reruns Qloo Insights with an exact required tag.
 6. Cities receive an evidence score (3 points per direct mention, 1 per qualified scene lead). Raw Qloo affinities only order places within one city, not cities across separate requests.
-7. The result carries low/medium/high evidence strength, explicit caveats, and can select no city. The decision and retry trace are sealed in a Taste Receipt.
+7. The result carries low/medium/high **venue-fit evidence strength**, explicit caveats, and can select no city. The decision, evidence summaries, and refinement history are sealed in a Taste Receipt.
 
 ## Qloo sponsor integration
 
@@ -113,7 +108,7 @@ Every completed run records:
 - explicit product limitations;
 - canonical SHA-256 integrity hash.
 
-Changing any sealed value causes receipt verification to fail.
+Changing a sealed value without recomputing the hash causes verification to fail. The hash is **unkeyed**: “embedded hash matches” does not establish Qloo provenance, event existence, or real-world accuracy.
 
 ## Technology
 
@@ -178,6 +173,14 @@ curl -X POST http://127.0.0.1:2000/api/city-pulse \
 
 The public route limits request size, rate-limits callers, keeps the Qloo key server-side, and disables caching of responses.
 
+### `POST /api/refine-city-pulse`
+
+Send `{ "prior": <completed City Pulse result>, "request": { "action": "explain" | "alternatives" | "exclude" | "refine", ... } }`. Explain/alternatives/exclusions reuse the visible shortlist; changed query, cities, or constraints call Qloo again. The response states `changed` and `qlooCalled`. A search chain stops after three Qloo investigations. This public demo uses origin checks for the gated Eve channel and in-memory rate limiting; **neither is distributed abuse protection**, and origin headers alone do not authenticate a caller.
+
+### Eve chat gate
+
+`reflection/beam-free` is the only configured chat model. Public Eve sessions require both `SCENESET_CHAT_ENABLED=true` and an exact `SCENESET_UI_ORIGIN`; the frontend also requires `VITE_SCENESET_CHAT_ENABLED=true`. Do not set these until a credentialed tool-call preflight succeeds for the target project. On 2026-10-21 the [model catalog](https://vercel.com/ai-gateway/models/beam-free) listed it at zero price, but the actual project request was rejected with HTTP 403 (`Free tier users do not have access to this model`). Vercel says the [`-free` slug stops serving](https://vercel.com/changelog/reflection-ai-beam-now-available-on-ai-gateway-for-free) when its limited-time offer ends; SceneSet has no paid fallback and does not configure auto-top-up. Account billing settings were not verified. Chat is therefore incomplete and disabled in this branch.
+
 ## Verification
 
 ```bash
@@ -188,19 +191,16 @@ npm run check
 QLOO_LIVE_TEST=1 npm run test:live
 
 cd ../frontend
+npm test
 npm run typecheck
 npm run build
 ```
 
-Verified release evidence:
+With the local backend running on port 2000, `cd backend && npm run test:route` exercises cached refinement and tamper rejection using a sealed fixture. With the frontend dev server on port 5183, `cd frontend && npm run test:ui` runs the mocked desktop/mobile browser path. These do not replace credentialed Qloo checks.
 
-- 8 deterministic tests passed.
-- Credentialed city-pulse integration passed against the Qloo hackathon server.
-- Backend and frontend production builds passed.
-- Production API returned `COMPLETE` with three comparisons, four provider calls, and a valid receipt seal.
-- Anonymous deployed browser flow completed successfully.
+Current local evidence and remaining gates are recorded in [`evidence/tests/verification-summary.md`](evidence/tests/verification-summary.md). Earlier production and Qloo runs belong to the prior deployment, not this branch. Fixture tests are not a measured relevance-accuracy rate.
 
-See [`evidence/tests/verification-summary.md`](evidence/tests/verification-summary.md) for the exact evidence boundary.
+For the discovery → challenge → refinement → receipt walkthrough and honest judging boundaries, see [`evidence/judging-evidence.md`](evidence/judging-evidence.md).
 
 ## Project structure
 

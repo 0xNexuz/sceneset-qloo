@@ -18,7 +18,7 @@ const LIMITATIONS = [
   "Opening hours, event dates, ticket inventory, and availability are not verified.",
 ];
 const STOP_WORDS = new Set([
-  "a", "an", "and", "around", "at", "events", "event", "for", "in", "late", "live",
+  "a", "an", "and", "around", "at", "events", "event", "for", "in", "late",
   "near", "night", "nights", "of", "parties", "party", "places", "scene", "the", "with",
 ]);
 
@@ -34,6 +34,26 @@ function words(value: string): string[] {
 
 function coreWords(query: string): string[] {
   return [...new Set(words(query).filter((word) => !STOP_WORDS.has(word)))];
+}
+
+type Facet = { label: string; direct: RegExp; setting?: RegExp; requiresDirect?: boolean };
+
+function queryFacets(query: string): Facet[] {
+  const normalized = query.toLowerCase();
+  const facets: Facet[] = [];
+  const add = (label: string, direct: RegExp, setting?: RegExp, requiresDirect = false) =>
+    facets.push({ label, direct, setting, requiresDirect });
+  if (/afro[\s-]*beats?/.test(normalized)) add("Afrobeats", /afro[\s-]*beats?/i, undefined, true);
+  if (/jazz/.test(normalized)) add("jazz", /\bjazz\b/i, undefined, true);
+  if (/\b(food|dining|restaurant|cuisine|brunch)\b/.test(normalized)) add("food", /\b(food|dining|restaurant|cuisine|brunch|menu|kitchen)\b/i, /\b(cafe|restaurant|eatery|food hall|bistro)\b/i);
+  if (/\b(live\s+music|live\s+band|concert|gig)\b/.test(normalized)) add("live music", /\b(live\s+(music|band|performance)|concert|gig)\b/i, /\b(music venue|concert hall|performance venue|jazz club)\b/i);
+  if (/\bart\b/.test(normalized)) add("art", /\b(art|gallery|exhibit|museum)\b/i, /\b(creative space|cultural center)\b/i);
+  if (/\bfashion\b/.test(normalized)) add("fashion", /\b(fashion|style show|designer|runway)\b/i, undefined, true);
+  if (/\b(part(y|ies)|nightclub|dance)\b/.test(normalized)) add("party", /\b(part(y|ies)|nightclub|dance floor|dj set)\b/i, /\b(club|event venue|nightlife venue)\b/i);
+  if (facets.length === 0) {
+    for (const term of coreWords(query)) add(term, new RegExp(`\\b${term}\\b`, "i"), undefined, true);
+  }
+  return facets;
 }
 
 function validateBrief(brief: CityPulseBrief): string | null {
@@ -106,29 +126,33 @@ function assessPlace(place: QlooEntity, query: string, constraints: CityPulseBri
   if (place.properties.is_closed === true) return null;
   if (constraints?.minRating !== undefined && (venue.rating === undefined || venue.rating < constraints.minRating)) return null;
   const price = place.properties.price_level;
-  if (constraints?.maxPriceLevel !== undefined && typeof price === "number" && price > constraints.maxPriceLevel) return null;
+  if (constraints?.maxPriceLevel !== undefined && (typeof price !== "number" || price > constraints.maxPriceLevel)) return null;
+  if (/\b(live\s+music|live\s+band|concert|gig)\b/i.test(query) && venue.liveMusic === false) return null;
 
   const keywords = Array.isArray(place.properties.keywords)
-    ? place.properties.keywords.map((entry) => stringValue(record(entry).name)).filter(Boolean).join(" ")
+    ? place.properties.keywords.map((entry) => stringValue(record(entry).name) ?? stringValue(entry)).filter(Boolean).join(" ")
     : "";
-  const searchable = [place.name, venue.category, venue.description, keywords, ...tagNames(place.properties.good_for)].filter(Boolean).join(" ");
-  const venueWords = new Set(words(searchable));
-  const core = coreWords(query);
-  const direct = core.length > 0 && core.every((word) => venueWords.has(word));
-
-  const setting = [place.name, venue.category, venue.description].filter(Boolean).join(" ").toLowerCase();
-  const socialQuery = /part(y|ies)|night|club|dance|concert|music|jazz|gig/i.test(query);
-  const socialSetting = /nightclub|night club|dance club|music venue|concert|event venue|performance venue|jazz club|dj set|dance floor|live music venue/i.test(setting);
-  const foodQuery = /food|dining|restaurant|cuisine|brunch/i.test(query);
-  const foodSetting = /restaurant|cafe|dining|brunch|food hall/i.test(setting);
-  if (!direct && !((socialQuery && socialSetting) || (foodQuery && foodSetting))) return null;
+  const searchable = [place.name, venue.category, venue.description, keywords,
+    ...tagNames(place.properties.good_for), ...tagNames(place.properties.genres),
+    ...tagNames(place.properties.tags), stringValue(place.properties.primary_genre)].filter(Boolean).join(" ");
+  const setting = [place.name, venue.category, venue.description].filter(Boolean).join(" ");
+  const evidence: string[] = [];
+  let directCount = 0;
+  for (const facet of queryFacets(query)) {
+    const explicit = facet.direct.test(searchable) || (facet.label === "live music" && venue.liveMusic === true);
+    const plausible = !facet.requiresDirect && Boolean(facet.setting?.test(setting));
+    if (!explicit && !plausible) return null;
+    if (explicit) directCount += 1;
+    evidence.push(`${facet.label}: ${explicit ? "explicit Qloo venue detail" : "plausible venue setting"}`);
+  }
+  const direct = directCount === evidence.length;
 
   return {
     ...place,
     venue,
     fit: direct
-      ? { level: "direct", reason: `Qloo venue details mention ${core.join(" and ")}.` }
-      : { level: "scene", reason: `Qloo describes a suitable ${venue.category?.toLowerCase() ?? "venue"}; ${core.join(" and ") || "specific"} programming is unverified.` },
+      ? { level: "direct", reason: `Qloo venue details support each requested facet; current programming is unverified.`, evidence }
+      : { level: "scene", reason: `Qloo suggests a suitable ${venue.category?.toLowerCase() ?? "venue"}, but some facets have only setting-level evidence.`, evidence },
   };
 }
 
@@ -236,12 +260,14 @@ export async function discoverCityPulse(
     const selectedCity = comparisons[0]?.score ? comparisons[0].city : null;
     const confidence = confidenceFor(comparisons, refinement, core);
     const receipt = sealCityPulseReceipt({
-      schemaVersion: "1.0", createdAt: new Date().toISOString(), executionMode,
-      scorerVersion: "cultural-evidence-v2", inputs: brief, resolvedTags, providerCalls,
+      schemaVersion: "1.1", createdAt: new Date().toISOString(), executionMode,
+      scorerVersion: "cultural-evidence-v2.1", inputs: brief, resolvedTags, providerCalls,
       comparisons: comparisons.map(({ topPlaces, ...comparison }) => ({
         ...comparison, topPlaceIds: topPlaces.map((place) => place.id),
       })),
       refinement, confidence,
+      refinementHistory: [{ query: brief.query, cities: brief.cities, changed: ["initial discovery"], qlooCalled: true }],
+      evidenceSummaries: comparisons.map((market) => ({ city: market.city, direct: market.directMatchCount, plausible: market.qualifiedCount - market.directMatchCount, rejected: market.rejectedCount })),
       decision: { city: selectedCity, placeIds: comparisons[0]?.topPlaces.map((place) => place.id) ?? [] },
       limitations: LIMITATIONS,
     });

@@ -24,7 +24,7 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 ## Blockers and limits
 
 - `reflection/beam-free` is listed at zero price but the linked project's live required-tool preflight returned HTTP 403. Public/free-form chat is therefore **disabled and incomplete**; do not enable or switch to paid.
-- Vercel Development now provides `QLOO_API_KEY` to local commands without committing it. Both current-branch live suites passed with system CA verification; the Afrobeats-parties query returned no qualifying city despite six Qloo candidates per city. This remains a relevance/usefulness gap, not an API-connectivity blocker.
+- Vercel Development provides `QLOO_API_KEY` to local commands without committing it. Three current-branch live suites and a desktop/mobile browser → API → Qloo flow passed with system CA verification. Afrobeats parties, late-night jazz, and art + fashion selected no city; food + live music produced supported venue leads. The sparse results remain a relevance/usefulness gap, not an API-connectivity blocker.
 - No independent relevance ground truth, current-event feed, distributed abuse protection, or provenance authentication exists.
 
 ## Decision log
@@ -38,4 +38,4 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 
 ## Next action and authorization boundary
 
-Inspect why the live Afrobeats-party candidates failed the venue-evidence filter, then repeat the free-model tool-call preflight before claiming full readiness. Pushing, deploying, publishing, or updating the video requires separate user authorization.
+Review live venue programmes and improve discovery coverage before claiming recommendation readiness. The free-model tool-call preflight still fails HTTP 403, so keep public Eve chat off. Pushing or deploying requires separate user authorization; the user owns video and submission.

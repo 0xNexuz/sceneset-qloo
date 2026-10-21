@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T20:22:34.457Z",
+  "generatedAt": "2026-10-21T20:54:33.175Z",
   "provider": "hackathon.api.qloo.com",
   "query": "Afrobeats parties",
   "resolvedTags": [
@@ -31,8 +31,241 @@
     }
   ],
   "receipt": {
-    "hash": "76e946b4d5510a934734c28960556bb05f29c6c3489f542693c5022a1dc00cce",
+    "hash": "4bb1905107e0b139cc890049a797261d16b6e06a82c605ee9cdc179af0f3ddb7",
     "verified": true,
     "providerCallCount": 8
-  }
+  },
+  "observedCandidates": [
+    {
+      "city": "Lagos",
+      "focusedRetry": false,
+      "places": [
+        {
+          "name": "The Musical Village",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4.199999809265137,
+          "genre": "Event venue",
+          "descriptionSnippet": "Large event centre with a massive hall, ample parking, adjacent outdoor field, and strong crowd control, suited for high",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "The Lodge on 18",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 1,
+          "genre": "Resort hotel",
+          "descriptionSnippet": "Resort lodge within Lakowe Lakes Golf and Country Estate, offering accommodations amid a golf-course setting near the Le",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "The Canyon Lekki Halls & Event Centre",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4.300000190734863,
+          "genre": "Event venue",
+          "descriptionSnippet": "Multi-purpose event center and restaurant hosting concerts, banquets, and dinner theater in Lekki's Ikate Elegushi distr",
+          "afroMention": false,
+          "partyMention": true,
+          "liveMusic": true
+        },
+        {
+          "name": "Crown Inn",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 3.5999999046325684,
+          "genre": "Hotel",
+          "descriptionSnippet": "Compact two-star hotel in Lekki offering free breakfast, air-conditioned rooms, complimentary Wi-Fi, on-site bar and res",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "Likeminds gardens hotel",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4,
+          "genre": "Hotel",
+          "descriptionSnippet": "Garden-focused hotel offering comfortable lodging and event space near LASPOTECH on Ikorodu–Shagamu Road, steps from Saw",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "Royal Lounge and Bar",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4,
+          "genre": "Bar",
+          "descriptionSnippet": "Upscale restaurant and bar on Badore Road, Lagos, offering alcoholic beverages and moderately expensive dining in a loun",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        }
+      ]
+    },
+    {
+      "city": "Accra",
+      "focusedRetry": false,
+      "places": [
+        {
+          "name": "The Ghanaian Village Restaurant",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4.300000190734863,
+          "genre": "Restaurant",
+          "descriptionSnippet": "Upscale Ghanaian restaurant at La Palm Royal Beach Hotel in Accra offering traditional dishes, cocktails, and late-night",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "Pizza Hut-East Legon 1",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4,
+          "genre": "Pizza restaurant",
+          "descriptionSnippet": "Chain pizza restaurant offering delivery, takeout, dine-in, wings, pasta, and sides, with halal and vegetarian options a",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "Sweet Aroma",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4.099999904632568,
+          "genre": "Chinese takeaway",
+          "descriptionSnippet": "Chinese takeaway and dine-in in Accra serving varied fried rice dishes, vegetarian and vegan options, cocktails, beer, a",
+          "afroMention": false,
+          "partyMention": true,
+          "liveMusic": false
+        },
+        {
+          "name": "P.A Plaza",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4.199999809265137,
+          "genre": "Lodging",
+          "descriptionSnippet": "Hotel and tourist attraction on Spintex Road in Accra.",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "La Brasa East Legon American House Bridge",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4.199999809265137,
+          "genre": "Fast food restaurant",
+          "descriptionSnippet": "Casual American-style BBQ and fast-food spot in East Legon with takeout, outdoor seating, delivery, and all-you-can-eat ",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "The Venue",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4.5,
+          "genre": "Restaurant",
+          "descriptionSnippet": "Contemporary East Legon restaurant offering diverse cocktails, coffee, and small plates with vegetarian and vegan option",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        }
+      ]
+    },
+    {
+      "city": "London",
+      "focusedRetry": false,
+      "places": [
+        {
+          "name": "Next",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4,
+          "genre": "Clothing store",
+          "descriptionSnippet": "High-street retailer offering a wide range of apparel, shoes, accessories and children's clothing in Centrale Shopping C",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "Subway",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4.099999904632568,
+          "genre": "Sandwich shop",
+          "descriptionSnippet": "Casual counter-serve spot offering build-your-own sandwiches, salads and wraps with health-conscious and plant-based opt",
+          "afroMention": false,
+          "partyMention": true,
+          "liveMusic": false
+        },
+        {
+          "name": "Jaunty Coffee",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4.900000095367432,
+          "genre": "Coffee shop",
+          "descriptionSnippet": "Specialty coffee shop in Walthamstow offering ethically sourced small-batch roasted beans, subscriptions, prepared foods",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "USC",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4,
+          "genre": "Clothing store",
+          "descriptionSnippet": "Fashion chain carrying branded clothing, shoes, and accessories for adults and children in a compact retail setting.",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "Farm Girl",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 4.400000095367432,
+          "genre": "Cafe",
+          "descriptionSnippet": "Bright Portobello Road cafe offering health-focused brunches, organic coffee, and vegan and gluten-free options.",
+          "afroMention": false,
+          "partyMention": false,
+          "liveMusic": false
+        },
+        {
+          "name": "Aquum",
+          "type": "urn:entity",
+          "affinity": 0.7649962877984056,
+          "rating": 3.5999999046325684,
+          "genre": "Night club",
+          "descriptionSnippet": "Late-night cocktail bar and rooftop venue with DJs, flair bartenders and a street-food menu in Clapham High Street.",
+          "afroMention": false,
+          "partyMention": true,
+          "liveMusic": false
+        }
+      ]
+    },
+    {
+      "city": "Lagos",
+      "focusedRetry": true,
+      "places": []
+    },
+    {
+      "city": "Accra",
+      "focusedRetry": true,
+      "places": []
+    },
+    {
+      "city": "London",
+      "focusedRetry": true,
+      "places": []
+    }
+  ]
 }

@@ -14,7 +14,7 @@
     "start": "eve start",
     "typecheck": "tsc",
     "test": "vitest run",
-    "test:live": "vitest run tests/city-pulse.live.test.ts tests/qloo.live.test.ts",
+    "test:live": "vitest run tests/city-pulse.live.test.ts tests/city-pulse.matrix.live.test.ts tests/qloo.live.test.ts",
     "test:route": "node tests/route-smoke.mjs",
     "check": "npm run typecheck && npm test && npm run build"
   },

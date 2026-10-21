@@ -196,9 +196,9 @@ npm run typecheck
 npm run build
 ```
 
-With the local backend running on port 2000, `cd backend && npm run test:route` exercises cached refinement and tamper rejection using a sealed fixture. With the frontend dev server on port 5183, `cd frontend && npm run test:ui` runs the mocked desktop/mobile browser path. These do not replace credentialed Qloo checks.
+With the local backend running on port 2000, `cd backend && npm run test:route` exercises cached refinement and tamper rejection using a sealed fixture; `node tests/route-security-smoke.mjs` checks malformed and oversized requests. With the frontend dev server on port 5183, `cd frontend && npm run test:ui` runs the mocked desktop/mobile browser path. With a credentialed local backend and frontend on port 5185, `node tests/live-ui-smoke.mjs` exercises the real Qloo browser flow. The live model gate can be rechecked with `node backend/tests/free-model-preflight.mjs` under the linked project's Development environment; it must pass before enabling chat.
 
-Current local evidence and remaining gates are recorded in [`evidence/tests/verification-summary.md`](evidence/tests/verification-summary.md). Earlier production and Qloo runs belong to the prior deployment, not this branch. Fixture tests are not a measured relevance-accuracy rate.
+Current local evidence and remaining gates are recorded in [`evidence/tests/verification-summary.md`](evidence/tests/verification-summary.md). The current-branch credentialed Qloo checks are local; the published deployment is still the earlier build. Fixture tests are not a measured relevance-accuracy rate.
 
 For the discovery → challenge → refinement → receipt walkthrough and honest judging boundaries, see [`evidence/judging-evidence.md`](evidence/judging-evidence.md).
 

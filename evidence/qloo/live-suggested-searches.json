@@ -1,0 +1,121 @@
+{
+  "generatedAt": "2026-10-21T20:39:27.794Z",
+  "observations": [
+    {
+      "query": "Late-night jazz",
+      "cities": [
+        "Lagos",
+        "London"
+      ],
+      "selectedCity": null,
+      "confidence": "low",
+      "resolvedTags": [
+        {
+          "id": "urn:tag:genre:music:jazz",
+          "name": "Jazz"
+        }
+      ],
+      "comparisons": [
+        {
+          "city": "Lagos",
+          "candidateCount": 4,
+          "qualifiedCount": 0,
+          "directMatchCount": 0,
+          "score": 0,
+          "topPlaces": []
+        },
+        {
+          "city": "London",
+          "candidateCount": 4,
+          "qualifiedCount": 0,
+          "directMatchCount": 0,
+          "score": 0,
+          "topPlaces": []
+        }
+      ],
+      "providerCallCount": 6
+    },
+    {
+      "query": "Food + live music",
+      "cities": [
+        "Lagos",
+        "Accra"
+      ],
+      "selectedCity": "Accra",
+      "confidence": "medium",
+      "resolvedTags": [
+        {
+          "id": "urn:tag:good_for:qloo:live_music",
+          "name": "Live Music"
+        },
+        {
+          "id": "urn:tag:amenity:qloo:live_music",
+          "name": "Live Music"
+        }
+      ],
+      "comparisons": [
+        {
+          "city": "Accra",
+          "candidateCount": 4,
+          "qualifiedCount": 1,
+          "directMatchCount": 1,
+          "score": 3,
+          "topPlaces": [
+            {
+              "name": "The Ghanaian Village Restaurant",
+              "fit": "direct"
+            }
+          ]
+        },
+        {
+          "city": "Lagos",
+          "candidateCount": 4,
+          "qualifiedCount": 1,
+          "directMatchCount": 1,
+          "score": 3,
+          "topPlaces": [
+            {
+              "name": "The Canyon Lekki Halls & Event Centre",
+              "fit": "direct"
+            }
+          ]
+        }
+      ],
+      "providerCallCount": 3
+    },
+    {
+      "query": "Art + fashion",
+      "cities": [
+        "Lagos",
+        "London"
+      ],
+      "selectedCity": null,
+      "confidence": "low",
+      "resolvedTags": [
+        {
+          "id": "urn:tag:nearby_attraction:qloo:antara_fashion_hall",
+          "name": "Antara Fashion Hall"
+        }
+      ],
+      "comparisons": [
+        {
+          "city": "Lagos",
+          "candidateCount": 4,
+          "qualifiedCount": 0,
+          "directMatchCount": 0,
+          "score": 0,
+          "topPlaces": []
+        },
+        {
+          "city": "London",
+          "candidateCount": 4,
+          "qualifiedCount": 0,
+          "directMatchCount": 0,
+          "score": 0,
+          "topPlaces": []
+        }
+      ],
+      "providerCallCount": 6
+    }
+  ]
+}

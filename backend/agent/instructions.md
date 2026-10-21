@@ -17,7 +17,7 @@ Turn a cultural query—such as a genre, mood, cuisine, or social scene—and tw
 7. On success, lead with the selected city (or say no city is supported), explain the resolved Qloo taste signals, summarize the strongest places, state the non-calendar limitation, and surface the Taste Receipt hash.
 8. For every follow-up, explicitly say what changed and whether Qloo was called. Never treat a cached exclusion or explanation as a fresh investigation. Confidence means venue-fit evidence, not scheduled-event certainty.
 9. Use no other tools. Never reveal hidden reasoning or claim an unkeyed receipt hash proves Qloo provenance or factual accuracy.
-8. Keep credentials and raw headers private. Never ask a user to paste an API key into chat.
+10. Keep credentials and raw headers private. Never ask a user to paste an API key into chat.
 
 # Scope
 

@@ -8,7 +8,7 @@ A Qloo-powered agent that turns a cultural intent into a ranked, inspectable cit
 
 [Live demo](https://sceneset-qloo.vercel.app) · [API](https://sceneset-qloo-api.vercel.app) · [Qloo](https://www.qloo.com/)
 
-> The links above are the earlier deployed version. This local branch is **not deployed**. Free-form Eve chat is **disabled**: the live `reflection/beam-free` tool-call preflight returned HTTP 403 for the current project. No paid model fallback is configured. Discovery and guided refinements remain the working path.
+> The links above are the earlier deployed version. This feature branch has not been verified on those URLs. Free-form Eve chat is **disabled by default**. The configured zero-price model passed a live tool-call preflight and Eve eval on the linked project, but public chat and deployed-browser verification remain gated. No paid fallback is configured. Discovery and guided refinements remain the working path.
 
 </div>
 
@@ -77,7 +77,7 @@ Qloo is the product's decision substrate—not a decorative API call.
 | **Cross-market policy** | Applies the same evidence criteria and user constraints to every city. | Avoids treating per-query affinity values as calibrated cross-city scores. |
 | **Entity provenance** | Preserves returned Qloo entity IDs and request fingerprints in the receipt. | Prevents an unsupported place from silently entering the recommendation. |
 
-For one three-city search, SceneSet makes at least four Qloo calls; a weak first pass triggers a bounded tag search and one additional Insights call per city. The [earlier redacted four-call run](evidence/qloo/live-city-pulse.json) illustrates the ranking failure that motivated [this audit](evidence/qloo/afrobeats-ranking-audit.md).
+For one three-city search, SceneSet makes at least four Qloo calls; a weak first pass triggers a bounded tag search and one additional Insights call per city. The [current-branch credentialed run](evidence/qloo/live-city-pulse.json) selected no city for Afrobeats parties because none of its returned places had sufficient evidence; the earlier London-first failure is analyzed in [the ranking audit](evidence/qloo/afrobeats-ranking-audit.md).
 
 ### Example Qloo-grounded request
 
@@ -179,13 +179,16 @@ Send `{ "prior": <completed City Pulse result>, "request": { "action": "explain"
 
 ### Eve chat gate
 
-`reflection/beam-free` is the only configured chat model. Public Eve sessions require both `SCENESET_CHAT_ENABLED=true` and an exact `SCENESET_UI_ORIGIN`; the frontend also requires `VITE_SCENESET_CHAT_ENABLED=true`. Do not set these until a credentialed tool-call preflight succeeds for the target project. On 2026-10-21 the [model catalog](https://vercel.com/ai-gateway/models/beam-free) listed it at zero price, but the actual project request was rejected with HTTP 403 (`Free tier users do not have access to this model`). Vercel says the [`-free` slug stops serving](https://vercel.com/changelog/reflection-ai-beam-now-available-on-ai-gateway-for-free) when its limited-time offer ends; SceneSet has no paid fallback and does not configure auto-top-up. Account billing settings were not verified. Chat is therefore incomplete and disabled in this branch.
+`nvidia/nemotron-3.5-lightning-free` is the only configured chat model. The [live AI Gateway catalog](https://ai-gateway.vercel.sh/v1/models) lists it at zero input/output price and with tool use. A linked-project required-tool-call preflight invoked its tool, and a live Eve eval called `discover_city_pulse` and returned a Qloo-grounded answer. The previous `reflection/beam-free` model returned HTTP 403 for this project. Public Eve sessions require both `SCENESET_CHAT_ENABLED=true` and an exact `SCENESET_UI_ORIGIN`; the frontend also requires `VITE_SCENESET_CHAT_ENABLED=true`. These flags stay off pending deployed-browser verification and account billing/auto-top-up review. SceneSet has no paid fallback or auto-top-up configuration in code. A `-free` model may stop serving; unavailable chat must fall back to guided discovery, never to a paid model.
 
 ## Verification
 
 ```bash
 cd backend
 npm run check
+
+# Credentialed Eve session; asserts the discovery tool is called
+npm run eval
 
 # Requires QLOO_API_KEY
 QLOO_LIVE_TEST=1 npm run test:live

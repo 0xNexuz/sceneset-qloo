@@ -2,7 +2,7 @@ import { defineAgent } from "eve";
 
 export default defineAgent({
   defaultTools: false,
-  model: "reflection/beam-free",
+  model: "nvidia/nemotron-3.5-lightning-free",
   reasoning: "low",
   limits: {
     sessionTimeoutMs: 30 * 60 * 1000,

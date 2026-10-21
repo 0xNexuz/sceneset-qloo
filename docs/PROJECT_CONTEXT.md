@@ -1,15 +1,15 @@
 # SceneSet project context
 
-Updated 2026-10-21. This is a concise recovery record; executed checks are detailed in [`../evidence/tests/verification-summary.md`](../evidence/tests/verification-summary.md).
+Updated 2026-10-22. This is a concise recovery record; executed checks are detailed in [`../evidence/tests/verification-summary.md`](../evidence/tests/verification-summary.md).
 
 ## Identity and approved direction
 
-SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackathon. React/Vite frontend, Eve/TypeScript backend, Qloo Tags + Insights, deterministic cultural-evidence scorer, SHA-256 Taste Receipt. The approved upgrade adds Eve conversations, bounded refinements, stronger multi-facet matching, receipt export/verification, and judging evidence without redesigning the UI. No paid model, push, deployment, Devpost edit, or video update is authorized.
+SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackathon. React/Vite frontend, Eve/TypeScript backend, Qloo Tags + Insights, deterministic cultural-evidence scorer, SHA-256 Taste Receipt. The approved upgrade adds Eve conversations, bounded refinements, stronger multi-facet matching, receipt export/verification, and judging evidence without redesigning the UI. The user now authorizes pushing this verified feature branch. No paid model, manual deployment, Devpost edit, or video update is authorized.
 
 ## Git and milestone state
 
 - Base: `dbf6c58` on `main`; work is on local branch `feat/scene-agent-upgrade`.
-- Current milestone: implementation and expanded local/live verification committed locally through `92857b9`. The branch has not been pushed.
+- Previous milestone: implementation and expanded local/live verification committed locally through `f36a913`. Current milestone: verified free-model replacement, live Eve tool-call eval, and updated relevance evidence on this feature branch.
 - Prior deployment links in README serve the earlier build, not this upgrade.
 
 ## Verified implementation
@@ -23,11 +23,18 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 
 ## Blockers and limits
 
-- `reflection/beam-free` is listed at zero price but the linked project's live required-tool preflight returned HTTP 403. Public/free-form chat is therefore **disabled and incomplete**; do not enable or switch to paid.
+- `reflection/beam-free` returned HTTP 403 for the linked project. The replacement `nvidia/nemotron-3.5-lightning-free` appeared at zero price and passed a live required-tool preflight and Eve eval using the actual `discover_city_pulse` tool. Public/free-form chat is still off by default until deployed-browser fallback and account billing/auto-top-up settings are reviewed. Do not switch to paid.
 - Vercel Development provides `QLOO_API_KEY` to local commands without committing it. Three current-branch live suites and a desktop/mobile browser → API → Qloo flow passed with system CA verification. Afrobeats parties, late-night jazz, and art + fashion selected no city; food + live music produced supported venue leads. The sparse results remain a relevance/usefulness gap, not an API-connectivity blocker.
-- No independent relevance ground truth, current-event feed, distributed abuse protection, or provenance authentication exists.
+- A small primary-source relevance review exists and identifies a missed London jazz positive control; no representative independent truth set, measured accuracy, current-event feed, distributed abuse protection, or provenance authentication exists.
 
 ## Decision log
+
+### 2026-10-22 — Replace inaccessible Beam with a preflighted zero-price tool model
+
+- **Decision:** Configure only `nvidia/nemotron-3.5-lightning-free` for Eve. Keep public browser chat gated until deployed-browser and account-settings checks.
+- **Reason:** Beam returned HTTP 403 for the target project; Nemotron was listed at zero price and invoked a required tool, then Eve called the real discovery tool in a live eval.
+- **Evidence:** Linked-project preflight `TOOL_INVOKED`, Eve eval 2/2 gates, backend and frontend checks, and qualitative venue review.
+- **Status:** Live Eve tool calling VERIFIED locally; public deployment UNVERIFIED.
 
 ### 2026-10-21 — Keep chat gated and guided refinement usable
 
@@ -38,4 +45,4 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 
 ## Next action and authorization boundary
 
-Review live venue programmes and improve discovery coverage before claiming recommendation readiness. The free-model tool-call preflight still fails HTTP 403, so keep public Eve chat off. Pushing or deploying requires separate user authorization; the user owns video and submission.
+Review more live venue programmes and improve candidate coverage before claiming measured relevance. Push the verified feature branch under the user's new authorization, then inspect any automatically created preview. Manual deployment or production promotion remains a separate authorization boundary; the user owns video and submission.

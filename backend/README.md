@@ -21,12 +21,15 @@ QLOO_API_KEY=your_key_here
 QLOO_API_BASE_URL=https://hackathon.api.qloo.com
 ```
 
-Eve browser chat remains disabled unless `SCENESET_CHAT_ENABLED=true` and `SCENESET_UI_ORIGIN` is set to the exact frontend origin. It uses only `reflection/beam-free`. Do not enable until a live tool-calling preflight succeeds; the current project received HTTP 403 on 2026-10-21. There is no paid fallback. `SCENESET_UI_ORIGIN`/CORS and in-memory rate limits are not distributed abuse protection.
+Eve browser chat remains disabled unless `SCENESET_CHAT_ENABLED=true` and `SCENESET_UI_ORIGIN` is set to the exact frontend origin. It uses only `nvidia/nemotron-3.5-lightning-free`; a linked-project tool-call preflight and a live Eve eval both passed on 2026-10-22. The earlier `reflection/beam-free` choice returned HTTP 403, so it was removed. There is no paid fallback. Check current zero pricing and account billing settings before enabling public chat; `SCENESET_UI_ORIGIN`/CORS and in-memory rate limits are not distributed abuse protection.
 
 ## Verify
 
 ```bash
 npm run check
+
+# Credentialed live Eve tool-call check (requires linked Vercel AI Gateway and Qloo access)
+npm run eval
 
 # Credentialed Qloo integration
 QLOO_LIVE_TEST=1 npm run test:live

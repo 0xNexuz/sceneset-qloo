@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2026-10-21T20:22:31.646Z",
+  "provider": "hackathon.api.qloo.com",
+  "status": "COMPLETE",
+  "selectedCity": "Lagos",
+  "comparisons": [
+    {
+      "city": "Lagos",
+      "score": 0.9531,
+      "candidateCount": 4,
+      "topPlaces": [
+        {
+          "id": "A01ABB20-678B-4A3A-AC06-0134B2C72CBE",
+          "name": "Ofadaboy",
+          "affinity": 0.9573966139734575,
+          "hasExplainability": true
+        },
+        {
+          "id": "93F0CEE4-AB72-4666-A953-D2543D1110F9",
+          "name": "Roma Lagos",
+          "affinity": 0.9517569913141812,
+          "hasExplainability": true
+        },
+        {
+          "id": "D1794390-0F7B-4DF8-8149-E4506D373BAD",
+          "name": "NOK by Alara",
+          "affinity": 0.9501671154066619,
+          "hasExplainability": true
+        }
+      ]
+    },
+    {
+      "city": "Accra",
+      "score": 0.9227,
+      "candidateCount": 4,
+      "topPlaces": [
+        {
+          "id": "3195C110-4736-47D6-844D-6FF7CACA25C4",
+          "name": "POMONA",
+          "affinity": 0.9258088320565585,
+          "hasExplainability": true
+        },
+        {
+          "id": "2D0A587E-032C-4DEC-B464-B1D1109511F3",
+          "name": "Bistro 22 - Kitchen + Bar",
+          "affinity": 0.9214407380283355,
+          "hasExplainability": true
+        },
+        {
+          "id": "FF799A7F-39F7-4601-BF9F-C2D3F405F22E",
+          "name": "Santoku",
+          "affinity": 0.9208202176970949,
+          "hasExplainability": true
+        }
+      ]
+    }
+  ],
+  "scene": {
+    "artists": [
+      {
+        "id": "C510E01A-E17C-45FC-8DCE-64A963A121A4",
+        "name": "Wizkid",
+        "affinity": 0.9711667193508956
+      },
+      {
+        "id": "E7096B50-EE00-4A60-86E3-231F82115031",
+        "name": "Mr Eazi",
+        "affinity": 0.969847775651697
+      }
+    ],
+    "brands": [
+      {
+        "id": "25255993-75ED-4735-AEB1-E767E3801717",
+        "name": "Pulse Ng",
+        "affinity": 0.960498314233777
+      },
+      {
+        "id": "C16EA424-AD40-4DE7-AC90-A9B445F5660B",
+        "name": "Travelbeta.com",
+        "affinity": 0.9499257634848386
+      }
+    ]
+  },
+  "receipt": {
+    "hash": "3410f4652e48bf88446986625aa54f88bd0449d5a7dfe3eade0158cccea9b37f",
+    "verified": true,
+    "providerCallCount": 7,
+    "providerCalls": [
+      {
+        "operation": "search",
+        "requestHash": "18dddc5769c1c9171f55110ecbb999947052b4fdaf9c4fdf393bec0b9fe37aaf",
+        "resultCount": 5
+      },
+      {
+        "operation": "search",
+        "requestHash": "ea4cc0508cb8bcf81a19ec9953661a80b425eb633c82fa5f347c1db4b960d369",
+        "resultCount": 5
+      },
+      {
+        "operation": "search",
+        "requestHash": "b7ff3f227b010b662a2d113bf0644dbf1a3d9675d6892d78899ab4f717e63b58",
+        "resultCount": 5
+      },
+      {
+        "operation": "insights",
+        "requestHash": "2531ffa013d6484d40db39513032921d4a28896c8eafcf68a423b50a97fefaa1",
+        "resultCount": 4
+      },
+      {
+        "operation": "insights",
+        "requestHash": "2bf25eb031ef2868eba42f98553d349364159a11fc9b211daf8de036d918676e",
+        "resultCount": 4
+      },
+      {
+        "operation": "insights",
+        "requestHash": "e43bbe0bf881a6101619ae57ff34412392f3287f0b74ef15be343d031fe2003c",
+        "resultCount": 4
+      },
+      {
+        "operation": "insights",
+        "requestHash": "d5a183f57b9359104057d2e67441e710d98b405280cc4a269a3a0108fd944e9c",
+        "resultCount": 4
+      }
+    ]
+  }
+}

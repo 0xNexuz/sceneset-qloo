@@ -14,7 +14,7 @@ A Qloo-powered agent that turns a cultural intent into a ranked, inspectable cit
 
 Searching for “Afrobeats parties,” “late-night jazz,” or “food + live music” usually produces generic city guides shaped by popularity and search ranking. Those results rarely explain why a place fits the requested culture, and a language model can make a convincing recommendation without evidence.
 
-SceneSet starts with taste. It resolves a free-text cultural query against Qloo, compares real place affinities across two to five cities, applies the same deterministic scoring policy to every market, and exposes the evidence behind the winner.
+SceneSet starts with taste. It resolves a free-text cultural query against Qloo, checks returned places for cultural and venue evidence across two to five cities, and exposes both the recommendation and its uncertainty.
 
 > SceneSet recommends culturally relevant places. It does not claim to verify scheduled events, opening hours, ticket inventory, booking availability, attendance, or revenue.
 
@@ -23,8 +23,9 @@ SceneSet starts with taste. It resolves a free-text cultural query against Qloo,
 - Accepts any genre, mood, cuisine, or scene—not a fixed artist or preset itinerary.
 - Resolves natural-language intent into real Qloo taste tags.
 - Compares place recommendations across 2–5 selected cities.
-- Ranks every city with a versioned, deterministic top-three affinity scorer.
-- Shows the resolved tags, city scores, and recommended places.
+- Rejects unsupported or under-rated places locally, then ranks cities by qualified cultural evidence—not raw cross-query affinity.
+- Automatically retries with a narrower Qloo tag filter when the first pass has no explicit cultural matches.
+- Shows venue context, practical links, explanations, and confidence; it can select no city when evidence is insufficient.
 - Generates a SHA-256 Taste Receipt containing the decision evidence.
 - Fails closed when Qloo is unavailable; it never substitutes fabricated results.
 
@@ -51,6 +52,7 @@ flowchart LR
     QT -->|resolved tag IDs| T
     T -->|tags + city + place filters| QI
     QI -->|entities + affinity scores| T
+    P -->|weak match: focused tag retry| T
     T --> P
     R --> CH
     CH -->|ranked cities + places + receipt| UI
@@ -63,9 +65,10 @@ flowchart LR
 1. The user enters a cultural query and selects candidate cities.
 2. The Eve tool resolves that query through Qloo Tags.
 3. The resolved tag IDs become taste signals for a Qloo Insights request in each city.
-4. SceneSet normalizes the returned place entities and affinities.
-5. Each city receives the mean affinity of its top three candidates.
-6. The highest-scoring valid city is selected and the full decision is sealed in a Taste Receipt.
+4. SceneSet rejects places lacking venue/genre support or failing user quality constraints. It distinguishes a direct cultural mention from a plausible setting whose programming is unverified.
+5. If no direct match appears, the Eve tool searches a narrower cultural term and reruns Qloo Insights with an exact required tag.
+6. Cities receive an evidence score (3 points per direct mention, 1 per qualified scene lead). Raw Qloo affinities only order places within one city, not cities across separate requests.
+7. The result carries low/medium/high evidence strength, explicit caveats, and can select no city. The decision and retry trace are sealed in a Taste Receipt.
 
 ## Qloo sponsor integration
 
@@ -74,11 +77,12 @@ Qloo is the product's decision substrate—not a decorative API call.
 | Qloo capability | How SceneSet uses it | Why it is essential |
 |---|---|---|
 | **Tags API** | Resolves searches such as `Afrobeats parties` into Qloo tag URNs. | Converts ambiguous language into taste-graph signals instead of relying on model memory. |
-| **Insights API** | Queries place entities using the resolved tags and a city location signal. | Produces the real candidates and affinity values that SceneSet is allowed to rank. |
-| **Cross-market consistency** | Sends the same tags, filters, take limit, and scorer across every city. | Makes the city comparison explainable and reproducible. |
+| **Insights API** | Queries place entities using taste tags, city location, and place filters. | Produces the candidate venues and metadata that SceneSet validates. |
+| **Focused retry** | Requeries Insights with an exact tag filter when the first pass is weak. | Makes Eve adapt to ambiguous Qloo returns without inventing venues. |
+| **Cross-market policy** | Applies the same evidence criteria and user constraints to every city. | Avoids treating per-query affinity values as calibrated cross-city scores. |
 | **Entity provenance** | Preserves returned Qloo entity IDs and request fingerprints in the receipt. | Prevents an unsupported place from silently entering the recommendation. |
 
-For one three-city search, SceneSet performs one Qloo tag-resolution call and one Qloo Insights call per city. The public redacted artifact at [`evidence/qloo/live-city-pulse.json`](evidence/qloo/live-city-pulse.json) records a credentialed four-call run without exposing the API key.
+For one three-city search, SceneSet makes at least four Qloo calls; a weak first pass triggers a bounded tag search and one additional Insights call per city. The [earlier redacted four-call run](evidence/qloo/live-city-pulse.json) illustrates the ranking failure that motivated [this audit](evidence/qloo/afrobeats-ranking-audit.md).
 
 ### Example Qloo-grounded request
 
@@ -93,7 +97,7 @@ For one three-city search, SceneSet performs one Qloo tag-resolution call and on
 }
 ```
 
-The result includes the resolved Qloo tags, ranked city comparisons, Qloo-returned places, provider-call evidence, limitations, and a 64-character SHA-256 integrity seal.
+The result includes resolved Qloo tags, validated place leads, explanations, confidence, retry trace, provider-call evidence, limitations, and a 64-character SHA-256 integrity seal.
 
 ## Taste Receipt
 
@@ -103,7 +107,8 @@ Every completed run records:
 - execution mode and scorer version;
 - resolved Qloo tag IDs;
 - hashed provider-request fingerprints and result counts;
-- candidate counts, place IDs, and city scores;
+- candidate, exclusion, and direct-match counts, place IDs, and evidence scores;
+- refinement attempt and confidence reasons;
 - selected city and place IDs;
 - explicit product limitations;
 - canonical SHA-256 integrity hash.

@@ -77,6 +77,45 @@ export interface MarketComparison {
   topPlaces: QlooEntity[];
 }
 
+export interface CityPlace extends QlooEntity {
+  fit: {
+    level: "direct" | "scene";
+    reason: string;
+  };
+  venue: {
+    category?: string;
+    description?: string;
+    address?: string;
+    website?: string;
+    rating?: number;
+    liveMusic?: boolean;
+  };
+}
+
+export interface CityPulseComparison {
+  city: string;
+  score: number;
+  candidateCount: number;
+  qualifiedCount: number;
+  directMatchCount: number;
+  rejectedCount: number;
+  topPlaces: CityPlace[];
+  explanation: string;
+}
+
+export interface CityPulseConfidence {
+  level: "high" | "medium" | "low";
+  summary: string;
+  reasons: string[];
+}
+
+export interface CityPulseRefinement {
+  attempted: boolean;
+  reason?: string;
+  tagQuery?: string;
+  additionalCalls: number;
+}
+
 export interface TasteReceipt {
   schemaVersion: "1.0";
   createdAt: string;
@@ -100,12 +139,14 @@ export interface CityPulseReceipt {
   schemaVersion: "1.0";
   createdAt: string;
   executionMode: ExecutionMode;
-  scorerVersion: "market-affinity-v1";
+  scorerVersion: "cultural-evidence-v2";
   inputs: CityPulseBrief;
   resolvedTags: QlooTag[];
   providerCalls: QlooCallEvidence[];
-  comparisons: Array<Omit<MarketComparison, "topPlaces"> & { topPlaceIds: string[] }>;
-  decision: { city: string; placeIds: string[] };
+  comparisons: Array<Omit<CityPulseComparison, "topPlaces"> & { topPlaceIds: string[] }>;
+  refinement: CityPulseRefinement;
+  confidence: CityPulseConfidence;
+  decision: { city: string | null; placeIds: string[] };
   limitations: string[];
   integrity: { algorithm: "sha256"; hash: string };
 }
@@ -114,9 +155,11 @@ export type CityPulseResult =
   | {
       status: "COMPLETE";
       executionMode: ExecutionMode;
-      selectedCity: string;
+      selectedCity: string | null;
       intent: { query: string; tags: QlooTag[] };
-      comparisons: MarketComparison[];
+      comparisons: CityPulseComparison[];
+      confidence: CityPulseConfidence;
+      refinement: CityPulseRefinement;
       receipt: CityPulseReceipt;
     }
   | {

@@ -34,6 +34,7 @@ describe("LiveQlooClient", () => {
     const result = await client.insights({
       type: "place",
       entityIds: ["artist-1"],
+      requiredTagIds: ["urn:tag:good_for:qloo:afrobeat_parties"],
       location: "Lagos",
       constraints: { maxPriceLevel: 3, minRating: 4 },
       take: 3,
@@ -51,6 +52,7 @@ describe("LiveQlooClient", () => {
     expect(url.searchParams.get("filter.location.query")).toBe("Lagos");
     expect(url.searchParams.get("filter.price_level.max")).toBe("3");
     expect(url.searchParams.get("filter.properties.business_rating.min")).toBe("4");
+    expect(url.searchParams.get("filter.tags")).toBe("urn:tag:good_for:qloo:afrobeat_parties");
     expect(url.searchParams.has("filter.rating.min")).toBe(false);
   });
 

@@ -21,7 +21,7 @@ describe.skipIf(!runLive)("Qloo live city pulse", () => {
     if (result.status !== "COMPLETE") throw new Error(`${result.status}: ${result.reason}`);
     expect(result.status).toBe("COMPLETE");
     expect(result.intent.tags.length).toBeGreaterThan(0);
-    expect(result.receipt.providerCalls).toHaveLength(4);
+    expect(result.receipt.providerCalls.length).toBeGreaterThanOrEqual(4);
     expect(result.comparisons.every(({ candidateCount }) => candidateCount > 0)).toBe(true);
     expect(verifyCityPulseReceipt(result.receipt)).toBe(true);
 

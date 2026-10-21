@@ -16,6 +16,7 @@ export interface QlooProvider {
     type: EntityType;
     entityIds?: string[];
     tagIds?: string[];
+    requiredTagIds?: string[];
     location?: string;
     constraints?: SceneConstraints;
     excludeEntityIds?: string[];
@@ -214,6 +215,7 @@ export class LiveQlooClient implements QlooProvider {
     type: EntityType;
     entityIds?: string[];
     tagIds?: string[];
+    requiredTagIds?: string[];
     location?: string;
     constraints?: SceneConstraints;
     excludeEntityIds?: string[];
@@ -226,6 +228,9 @@ export class LiveQlooClient implements QlooProvider {
     }
     if (input.tagIds?.length) {
       url.searchParams.set("signal.interests.tags", input.tagIds.join(","));
+    }
+    if (input.requiredTagIds?.length) {
+      url.searchParams.set("filter.tags", input.requiredTagIds.join(","));
     }
     if (!input.entityIds?.length && !input.tagIds?.length) {
       throw new Error("Qloo insights requires at least one entity or tag signal.");

@@ -9,7 +9,7 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 ## Git and milestone state
 
 - Base: `dbf6c58` on `main`; work is on local branch `feat/scene-agent-upgrade`.
-- Current milestone: implementation and local verification committed locally as `0657de4`. The branch has not been pushed.
+- Current milestone: implementation and expanded local/live verification committed locally through `92857b9`. The branch has not been pushed.
 - Prior deployment links in README serve the earlier build, not this upgrade.
 
 ## Verified implementation

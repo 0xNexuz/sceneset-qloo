@@ -5,7 +5,7 @@ import "./styles.css";
 
 const tabs = ["Discover", "City pulse", "Taste receipt", "Evidence"];
 const cityOptions = ["Lagos", "Accra", "London", "Nairobi", "Johannesburg"];
-const suggestions = ["Afrobeats parties", "Late-night jazz", "Art + fashion", "Food + live music"];
+const suggestions = ["Live music", "Art galleries", "Food + live music"];
 const apiBaseUrl = (import.meta.env.VITE_SCENESET_API_URL ?? "http://127.0.0.1:2000").replace(/\/$/, "");
 const chatEnabled = import.meta.env.VITE_SCENESET_CHAT_ENABLED === "true";
 const EveBridge = React.lazy(() => import("./eve-bridge"));
@@ -91,7 +91,7 @@ function Discovery({ onResult, onSearch }) {
       <div className="truth-note"><strong>REAL DATA</strong><span>Qloo taste tags + place recommendations</span><small>Not a scheduled-events or ticket feed.</small></div>
     </div>
     <form className="brief-form search-form" onSubmit={discover}>
-      <label><span>Scene, mood, cuisine, or genre</span><input aria-label="Scene search" value={query} placeholder="Try “Afrobeats parties”" onChange={(e) => { setQuery(e.target.value); setRun({ status: "idle", message: "" }); }} /></label>
+      <label><span>Scene, mood, cuisine, or genre</span><input aria-label="Scene search" value={query} placeholder="Try “Art galleries”" onChange={(e) => { setQuery(e.target.value); setRun({ status: "idle", message: "" }); }} /></label>
       <div className="suggestions" aria-label="Suggested searches">{suggestions.map((item) => <button type="button" key={item} onClick={() => setQuery(item)}>{item}</button>)}</div>
       <fieldset><legend>Compare cities <small>choose 2–5</small></legend><div className="city-pills">{cityOptions.map((city) => <button type="button" key={city} aria-pressed={cities.includes(city)} onClick={() => toggleCity(city)} className={cities.includes(city) ? "selected" : ""}>{city}</button>)}</div></fieldset>
       <label className="rating-field"><span>Minimum place rating</span><select value={minRating} onChange={(e) => setMinRating(Number(e.target.value))}><option value="3.5">3.5+</option><option value="4">4.0+</option><option value="4.5">4.5+</option></select></label>

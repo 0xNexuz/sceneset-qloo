@@ -20,6 +20,7 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 - Guided refinement route supports cached explanation/exclusion and fresh Qloo search for changed preferences. The legacy `/api/scene-plan` route remains; its model-facing tool was removed.
 - Receipt `1.1` adds history and evidence summaries; browser verifier accepts `1.0` and `1.1` and says “embedded hash matches” or “mismatch.”
 - No-winner City Pulse guidance now suggests refinement rather than sending users to a nonexistent venue link; exclusion is disabled when no qualified venue exists. Desktop and mobile UI fixture tests cover this state.
+- Featured searches now use live-positive venue-fit queries (`Live music`, `Art galleries`, `Food + live music`) instead of three weak/no-winner prompts. Free-text searches still allow no-winner results. `Brunch` was not featured because the current facet map treats it as generic food rather than verifying brunch service.
 - Backend deterministic fixtures and a local cached-refinement HTTP smoke, frontend receipt tests, production builds, mocked desktop/mobile browser flow, and mocked Eve-403 fallback have passed locally. See verification summary for exact counts and limits.
 
 ## Blockers and limits
@@ -27,6 +28,7 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 - `reflection/beam-free` returned HTTP 403 for the linked project. The replacement `nvidia/nemotron-3.5-lightning-free` appeared at zero price and passed a live required-tool preflight and Eve eval using the actual `discover_city_pulse` tool. Public/free-form chat is still off by default until deployed-browser fallback and account billing/auto-top-up settings are reviewed. Do not switch to paid.
 - Vercel Development provides `QLOO_API_KEY` to local commands without committing it. A preview-only sensitive Qloo variable was added to the backend Vercel project for its protected preview. Three current-branch live suites and a local desktop/mobile browser → API → Qloo flow passed with system CA verification. The deployed preview API also returned a real Accra food/music lead and a real art/fashion no-winner result. Afrobeats parties, late-night jazz, and art + fashion selected no city; the sparse results remain a relevance/usefulness gap, not an API-connectivity blocker.
 - A small primary-source relevance review exists and identifies a missed London jazz positive control; no representative independent truth set, measured accuracy, current-event feed, distributed abuse protection, or provenance authentication exists.
+- `evidence/judging-evidence.md` now reflects the pushed branch and protected previews instead of claiming no deployment; the user owns the video and submission.
 
 ## Decision log
 

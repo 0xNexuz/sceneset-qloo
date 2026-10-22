@@ -8,7 +8,7 @@ A Qloo-powered agent that turns a cultural intent into a ranked, inspectable cit
 
 [Live demo](https://sceneset-qloo.vercel.app) · [API](https://sceneset-qloo-api.vercel.app) · [Qloo](https://www.qloo.com/)
 
-> The links above are the earlier deployed version. This feature branch has not been verified on those URLs. Free-form Eve chat is **disabled by default**. The configured zero-price model passed a live tool-call preflight and Eve eval on the linked project, but public chat and deployed-browser verification remain gated. No paid fallback is configured. Discovery and guided refinements remain the working path.
+> The links above are the earlier deployed version. This feature branch is pushed but Vercel has not automatically created a preview, so it is not verified on those URLs. Free-form Eve chat is **disabled by default**. The configured zero-price model passed a live tool-call preflight and Eve eval on the linked project, but public chat and deployed-browser verification remain gated. No paid fallback is configured. Discovery and guided refinements remain the working path.
 
 </div>
 

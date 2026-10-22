@@ -9,7 +9,7 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 ## Git and milestone state
 
 - Base: `dbf6c58` on `main`; work is on local branch `feat/scene-agent-upgrade`.
-- Previous milestone: implementation and expanded local/live verification committed locally through `f36a913`. Current milestone: verified free-model replacement, live Eve tool-call eval, and updated relevance evidence on this feature branch.
+- Previous milestone: implementation and expanded local/live verification committed locally through `f36a913`. Current milestone: verified free-model replacement, live Eve tool-call eval, and updated relevance evidence committed at `730134c` and pushed to `origin/feat/scene-agent-upgrade`.
 - Prior deployment links in README serve the earlier build, not this upgrade.
 
 ## Verified implementation
@@ -45,4 +45,4 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 
 ## Next action and authorization boundary
 
-Review more live venue programmes and improve candidate coverage before claiming measured relevance. Push the verified feature branch under the user's new authorization, then inspect any automatically created preview. Manual deployment or production promotion remains a separate authorization boundary; the user owns video and submission.
+Review more live venue programmes and improve candidate coverage before claiming measured relevance. The feature branch is pushed, but Vercel created no automatic preview in the post-push listing. A manual preview deployment or production promotion remains a separate authorization boundary; the user owns video and submission.

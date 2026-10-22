@@ -23,7 +23,7 @@ Local branch `feat/scene-agent-upgrade`, updated 2026-10-22. The baseline deploy
 - Unavailable-model fallback in a **deployed** browser has not been tested on this branch. Account auto-top-up settings were not available from the local CLI; no paid fallback or auto-top-up is configured in code. Do not enable public chat until account settings and preview behavior are checked.
 - A representative, independently labeled cultural relevance dataset and measured accuracy/recall remain unavailable. The small primary-source review exposes retrieval misses; fixture passes are not an accuracy metric.
 - Venue-page/programme review remains incomplete for many returned and non-returned places. Qloo metadata and the spot-checked operator pages cannot confirm a specific future schedule, ticket, or availability.
-- Current-branch GitHub/Vercel deployment checks remain unexecuted until a push and preview exist. Video and submission are user-owned.
+- Commit `730134c` was pushed to `origin/feat/scene-agent-upgrade` on 2026-10-22. A Vercel deployment listing after the push showed **no new preview** for either linked project; both still listed only earlier production deployments. Thus the current branch has no deployed-browser verification. Video and submission are user-owned.
 
 ## Trust boundary
 

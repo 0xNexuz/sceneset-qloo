@@ -1,6 +1,6 @@
 # SceneSet verification summary
 
-Local branch `feat/scene-agent-upgrade`, updated 2026-10-22. The baseline deployment and its earlier smoke tests predate this branch; no current-branch deployment has been verified.
+Local branch `feat/scene-agent-upgrade`, updated 2026-10-22. The baseline production deployment and its earlier smoke tests predate this branch. The current branch has separate protected Vercel previews; these are not production releases.
 
 ## Executed
 
@@ -16,14 +16,16 @@ Local branch `feat/scene-agent-upgrade`, updated 2026-10-22. The baseline deploy
 - Real local browser → API → Qloo → UI path passed at desktop and mobile sizes. Desktop exercised cached explanation, fresh jazz refinement, food/music venue exclusion without another Qloo call, receipt download, embedded hash match, and tampered-file mismatch; mobile checked the live result and horizontal overflow. A three-city food/music check selected London with five venues having both food and live-music metadata; current programming was not verified. No browser console exceptions occurred.
 - A small primary-source spot check found both food and live-music descriptions on The Bedford's official pages and on La Palm Royal Beach Hotel's page for The Ghanaian Village Restaurant. This supports venue-category plausibility for two returned places only, not event-date or booking claims; links are in `../relevance-review.md`.
 - Additional independent positive-control review found Ronnie Scott's official London jazz club and late-hours pages, which expose a Qloo candidate-retrieval miss for the tested jazz query. Design Week Lagos's programme and the Kuti family's New Afrika Shrine page provide cultural context, but are not interchangeable with a Qloo-returned art+fashion place or a modern Afrobeats party. See `../relevance-review.md`; this is not a representative accuracy study.
-- After the model change, backend typecheck/17 deterministic tests/build and frontend typecheck/2 receipt tests/build passed again.
+- After the model change, backend typecheck/17 deterministic tests/build and frontend typecheck/2 receipt tests/build passed again. After the no-winner UI correction, frontend typecheck, two receipt tests, production build, and mocked desktop/mobile UI smoke passed again. The UI smoke now asserts the no-winner guidance, disabled exclusion control, and no overflow at both sizes.
+- Backend protected preview `https://sceneset-qloo-c3b6ixoh7-xreyys-projects.vercel.app` built successfully with a preview-only Qloo key. Authenticated preview requests returned a real `Food + live music` result (Accra, medium evidence confidence) and a real `Art + fashion` no-winner result: four candidates in each of Lagos, Accra, and London, zero qualified venues, and a focused retry. These prove preview API → Qloo connectivity and the no-winner decision, not cultural recommendation accuracy.
+- Frontend protected preview `https://sceneset-qloo-6jfcc8nkt-xreyys-projects.vercel.app` built successfully against that backend preview. Authenticated preview `GET /` returned HTTP 200. The front and back previews are protected separately; a browser-to-backend cross-origin click-through was not completed because ordinary unauthenticated requests to the backend preview return HTTP 401. No protection was disabled or bypass credential embedded in the client.
 
 ## Still unverified
 
 - Unavailable-model fallback in a **deployed** browser has not been tested on this branch. Account auto-top-up settings were not available from the local CLI; no paid fallback or auto-top-up is configured in code. Do not enable public chat until account settings and preview behavior are checked.
 - A representative, independently labeled cultural relevance dataset and measured accuracy/recall remain unavailable. The small primary-source review exposes retrieval misses; fixture passes are not an accuracy metric.
 - Venue-page/programme review remains incomplete for many returned and non-returned places. Qloo metadata and the spot-checked operator pages cannot confirm a specific future schedule, ticket, or availability.
-- Commit `730134c` was pushed to `origin/feat/scene-agent-upgrade` on 2026-10-22. A Vercel deployment listing after the push showed **no new preview** for either linked project; both still listed only earlier production deployments. Thus the current branch has no deployed-browser verification. Video and submission are user-owned.
+- The current branch is pushed to `origin/feat/scene-agent-upgrade`. These Vercel projects are not connected to a Git repository, so pushing did not auto-deploy; the protected previews above were deployed manually. Production deployment, video, and submission remain separate.
 
 ## Trust boundary
 

@@ -29,11 +29,23 @@ function fixtureResult(query = "Afrobeats parties") {
   return { status: "COMPLETE", executionMode: "fixture", selectedCity: "Lagos", intent: { query, tags: payload.resolvedTags }, comparisons, confidence, refinement: payload.refinement, receipt: { ...payload, integrity: { algorithm: "sha256", hash } } };
 }
 
+function fixtureNoWinner() {
+  const result = fixtureResult("Art + fashion");
+  result.selectedCity = null;
+  result.comparisons = result.comparisons.map((market) => ({ ...market, score: 0, qualifiedCount: 0, directMatchCount: 0, rejectedCount: market.candidateCount, topPlaces: [], explanation: "No returned venue had enough evidence." }));
+  result.confidence = { level: "low", summary: "No city has a sufficiently supported venue lead.", reasons: ["Returned venues lack both requested facets."] };
+  result.refinement = { attempted: true, tagQuery: "art fashion", additionalCalls: 1 };
+  const payload = { ...result.receipt, comparisons: result.comparisons.map(({ topPlaces, ...market }) => ({ ...market, topPlaceIds: topPlaces.map((item) => item.id) })), confidence: result.confidence, decision: { city: null, placeIds: [] }, refinement: result.refinement };
+  delete payload.integrity;
+  result.receipt = { ...payload, integrity: { algorithm: "sha256", hash: createHash("sha256").update(JSON.stringify(canonicalize(payload))).digest("hex") } };
+  return result;
+}
+
 const browser = await chromium.launch({ headless: true, executablePath });
 try {
   for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
     const page = await browser.newPage({ viewport });
-    await page.route("**/api/city-pulse", async (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(fixtureResult()) }));
+    await page.route("**/api/city-pulse", async (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(route.request().postDataJSON().query === "Art + fashion" ? fixtureNoWinner() : fixtureResult()) }));
     await page.route("**/api/refine-city-pulse", async (route) => {
       const request = route.request().postDataJSON().request;
       const fresh = request.action === "refine";
@@ -66,6 +78,15 @@ try {
     await page.getByText(/Mismatch: receipt contents differ/).waitFor({ state: "visible" });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
     assert.equal(overflow, false, `horizontal overflow at ${viewport.width}px`);
+    await page.getByRole("button", { name: /Discover/ }).click();
+    await page.getByRole("textbox", { name: "Scene search" }).fill("Art + fashion");
+    await page.getByRole("button", { name: /Find the best scene/ }).click();
+    await page.getByText("No clear city").waitFor({ state: "visible" });
+    assert.ok(await page.getByText(/Try a more specific scene, compare different cities, or lower the rating threshold/).isVisible());
+    assert.equal(await page.getByText(/Open a venue link or map/).count(), 0);
+    assert.equal(await page.getByLabel(/Exclude a venue/).isDisabled(), true);
+    assert.equal(await page.getByRole("button", { name: "Exclude and compare" }).isDisabled(), true);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1), false, `no-winner overflow at ${viewport.width}px`);
     console.log(`UI smoke passed at ${viewport.width}px`);
     await page.close();
   }

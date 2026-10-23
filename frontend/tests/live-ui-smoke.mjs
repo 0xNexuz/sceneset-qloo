@@ -10,7 +10,7 @@ try {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(base);
-  await page.getByRole("textbox", { name: "Scene search" }).fill("Afrobeats parties");
+  await page.getByRole("textbox", { name: "Scene search" }).fill("Live music");
   const discovery = page.waitForResponse((response) => response.url().endsWith("/api/city-pulse") && response.request().method() === "POST", { timeout: 90_000 });
   await page.getByRole("button", { name: /Find the best scene/ }).click();
   const initialResponse = await discovery;
@@ -18,6 +18,7 @@ try {
   assert.equal(initialResponse.status(), 200);
   assert.equal(initial.status, "COMPLETE");
   assert.equal(initial.executionMode, "live");
+  assert.ok(initial.selectedCity, "live music should have a supported city in the live sample");
   assert.ok(initial.receipt.providerCalls.length >= 4);
   await page.getByRole("button", { name: "Why this ranking?" }).waitFor({ state: "visible" });
   const explain = page.waitForResponse((response) => response.url().endsWith("/api/refine-city-pulse"));
@@ -26,7 +27,7 @@ try {
   assert.equal(explainResponse.status(), 200);
   assert.equal((await explainResponse.json()).qlooCalled, false);
   await page.getByText(/Qloo was not called/).waitFor({ state: "visible" });
-  await page.getByLabel("Change the cultural search").fill("Late-night jazz");
+  await page.getByLabel("Change the cultural search").fill("Art galleries");
   const fresh = page.waitForResponse((response) => response.url().endsWith("/api/refine-city-pulse") && response.request().method() === "POST", { timeout: 90_000 });
   await page.getByRole("button", { name: "Search again" }).click();
   const freshResponse = await fresh;
@@ -34,6 +35,7 @@ try {
   assert.equal(freshResponse.status(), 200);
   assert.equal(freshData.qlooCalled, true);
   assert.equal(freshData.result.status, "COMPLETE");
+  assert.ok(freshData.result.selectedCity, "art galleries should have a supported city in the live sample");
   await page.getByText(/Qloo was called/).waitFor({ state: "visible" });
   await page.getByRole("button", { name: /Taste receipt/ }).click();
   await page.getByRole("button", { name: "Verify current receipt" }).click();
@@ -64,6 +66,16 @@ try {
   assert.equal(exclusionData.qlooCalled, false);
   assert.ok(!exclusionData.result.comparisons.flatMap((market) => market.topPlaces).some((place) => place.id === firstVenue.id));
   await page.getByText(/excluded 1 venue/).first().waitFor({ state: "visible" });
+  await page.getByRole("button", { name: /Discover/ }).first().click();
+  await page.getByRole("textbox", { name: "Scene search" }).fill("Art + fashion");
+  const noWinnerDiscovery = page.waitForResponse((response) => response.url().endsWith("/api/city-pulse") && response.request().method() === "POST", { timeout: 90_000 });
+  await page.getByRole("button", { name: /Find the best scene/ }).click();
+  const noWinnerResponse = await noWinnerDiscovery;
+  const noWinnerData = await noWinnerResponse.json();
+  assert.equal(noWinnerResponse.status(), 200);
+  assert.equal(noWinnerData.selectedCity, null);
+  await page.getByText(/Try a more specific scene, compare different cities, or lower the rating threshold/).waitFor({ state: "visible" });
+  assert.equal(await page.getByText(/Open a venue link or map/).count(), 0);
   assert.deepEqual(errors, []);
   console.log(`Desktop live flow passed: initial city=${initial.selectedCity ?? "none"}, refined city=${freshData.result.selectedCity ?? "none"}, food city=${foodData.selectedCity ?? "none"}, provider calls=${freshData.result.receipt.providerCalls.length}`);
   await page.close();

@@ -1,6 +1,6 @@
 # SceneSet judging evidence — release candidate
 
-Status: **PARTIAL**. The feature branch is pushed and protected Vercel previews have passed direct API → Qloo checks; the production URLs in the README still serve the earlier build until a staged release is verified and promoted. Public Eve chat is off. The existing YouTube demo has not been inspected in this checkout; treat it as **outdated for the new refinement and receipt flow** until the user rerecords it.
+Status: **PUBLIC CORE VERIFIED, SUBMISSION PARTIAL**. The staged backend and frontend were promoted to the production URLs in the README. A public desktop/mobile browser → API → Qloo flow passed with real results, guided explanation/refinement/exclusion, receipt download/verification, and an honest no-winner state. Public Eve chat is off. The existing YouTube demo has not been inspected in this checkout; treat it as **outdated for the new refinement and receipt flow** until the user rerecords it.
 
 ## Reproducible walkthrough
 
@@ -20,5 +20,5 @@ Qloo Tags resolves the cultural signal, and Qloo Insights supplies place candida
 - The SHA-256 hash is unkeyed and checks internal consistency only. It does not authenticate Qloo responses.
 - Deterministic fixtures catch known failures; they are not independent cultural ground truth or a measured accuracy percentage.
 - A [small qualitative relevance review](relevance-review.md) is kept separately from the fixture tests.
-- Credentialed local Qloo checks and direct protected-preview API → Qloo checks passed; a complete deployed-browser click-through remains pending until the release is staged and checked.
+- Credentialed local Qloo checks, protected-preview API → Qloo checks, and a public production browser click-through passed. This is functional evidence, not a relevance-accuracy metric or proof of current events.
 - Free-form Eve chat is implemented behind a gate but **not enabled**. The originally proposed `reflection/beam-free` returned 403. A zero-price replacement passed a live tool-call preflight and Eve eval, but deployed fallback and account billing checks remain pending. No paid fallback is permitted.

@@ -8,7 +8,7 @@ A Qloo-powered agent that turns a cultural intent into a ranked, inspectable cit
 
 [Live demo](https://sceneset-qloo.vercel.app) · [API](https://sceneset-qloo-api.vercel.app) · [Qloo](https://www.qloo.com/)
 
-> The live links above are the earlier production version. This branch has separate [frontend](https://sceneset-qloo-6jfcc8nkt-xreyys-projects.vercel.app) and [backend](https://sceneset-qloo-c3b6ixoh7-xreyys-projects.vercel.app) previews protected by Vercel Authentication. Preview API → Qloo requests passed, but a browser-to-backend preview click-through is not yet verified because the projects are protected separately. Free-form Eve chat is **disabled by default** pending deployed fallback and billing checks. No paid fallback is configured. Discovery and guided refinements remain the working path.
+> The live links above serve this release. The public desktop/mobile browser → API → Qloo → result flow has passed, including guided refinements, receipt verification, and a no-winner result. Free-form Eve chat remains **disabled** pending deployed chat-fallback and billing checks; there is no paid fallback. Discovery and guided refinements are the working public path.
 
 </div>
 
@@ -201,7 +201,7 @@ npm run build
 
 With the local backend running on port 2000, `cd backend && npm run test:route` exercises cached refinement and tamper rejection using a sealed fixture; `node tests/route-security-smoke.mjs` checks malformed and oversized requests. With the frontend dev server on port 5183, `cd frontend && npm run test:ui` runs the mocked desktop/mobile browser path. With a credentialed local backend and frontend on port 5185, `node tests/live-ui-smoke.mjs` exercises the real Qloo browser flow. The live model gate can be rechecked with `node backend/tests/free-model-preflight.mjs` under the linked project's Development environment; it must pass before enabling chat.
 
-Current local and protected-preview evidence and remaining gates are recorded in [`evidence/tests/verification-summary.md`](evidence/tests/verification-summary.md). The published production deployment is still the earlier build. Fixture tests are not a measured relevance-accuracy rate.
+Current local, protected-preview, and production evidence and remaining limitations are recorded in [`evidence/tests/verification-summary.md`](evidence/tests/verification-summary.md). Fixture tests are not a measured relevance-accuracy rate.
 
 For the discovery → challenge → refinement → receipt walkthrough and honest judging boundaries, see [`evidence/judging-evidence.md`](evidence/judging-evidence.md).
 

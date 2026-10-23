@@ -1,6 +1,6 @@
 # SceneSet verification summary
 
-Local branch `feat/scene-agent-upgrade`, updated 2026-10-22. The baseline production deployment and its earlier smoke tests predate this branch. The current branch has separate protected Vercel previews; these are not production releases.
+Release candidate on `feat/scene-agent-upgrade`, updated 2026-10-22. The tested backend and frontend production builds are now promoted to the public SceneSet domains; separate protected previews were used before release.
 
 ## Executed
 
@@ -21,13 +21,17 @@ Local branch `feat/scene-agent-upgrade`, updated 2026-10-22. The baseline produc
 - Frontend protected preview `https://sceneset-qloo-6jfcc8nkt-xreyys-projects.vercel.app` built successfully against that backend preview. Authenticated preview `GET /` returned HTTP 200. The front and back previews are protected separately; a browser-to-backend cross-origin click-through was not completed because ordinary unauthenticated requests to the backend preview return HTTP 401. No protection was disabled or bypass credential embedded in the client.
 - Follow-up protected-preview Qloo searches with the default Lagos/Accra/London cities and 4.0+ rating returned: `Live music` → London high-confidence venue-fit lead (three of six candidates qualified in London, one of six in each of Accra and Lagos); `Art galleries` → Lagos high-confidence venue-fit lead (six of twelve qualified in Lagos, six of twelve in London, four of ten in Accra). `Food + live music` was already a credentialed live positive control. Those three are now the featured search chips. `Brunch` returned leads but was deliberately not featured: the scorer currently interprets it as generic food, not evidence that a venue serves brunch. None of these calls verifies a current programme, schedule, or availability.
 - After changing the featured chips and placeholder, frontend TypeScript check, two receipt tests, Vite production build, and desktop/mobile mocked UI smoke passed again.
+- Backend production deployment `dpl_G7a7R4SMnhSDJAiVC7gUASh3Z6LL` was staged with `--skip-domain`, then a credentialed staged request and a public-domain request each returned a real Qloo `Live music` result (London, high venue-fit confidence, SHA-256 receipt). It was promoted to `https://sceneset-qloo-api.vercel.app`.
+- Frontend production deployment `dpl_2iSBKZwYFA3WiyoxpdoTqo1Z2j3P` was staged with `--skip-domain` and an explicit build-time `VITE_SCENESET_API_URL=https://sceneset-qloo-api.vercel.app`. The served JS contained that URL and the new featured prompts. After backend promotion, the frontend was promoted to `https://sceneset-qloo.vercel.app`.
+- Public production Playwright browser smoke passed twice. Desktop exercised a live `Live music` search (London winner), cached why, fresh `Art galleries` refinement (Lagos winner), receipt download/hash match/tamper mismatch, `Food + live music` venue exclusion without another Qloo call, and a live `Art + fashion` no-winner result showing refinement guidance rather than a venue link. Mobile completed a live food/music search with no horizontal overflow. No page errors were observed. The prior frontend production deployment ID `dpl_Bo8QFshcaC4XeFq3YmbeUzRiYbH5` was recorded as a rollback target before promotion.
+- Bounded Vercel production error-log queries (`--level error --since 1h --no-branch`) returned no matching logs for either project after the smoke tests. This is a point-in-time scan, not continuous monitoring; no drains or separate monitoring configuration was verified.
 
 ## Still unverified
 
-- Unavailable-model fallback in a **deployed** browser has not been tested on this branch. Account auto-top-up settings were not available from the local CLI; no paid fallback or auto-top-up is configured in code. Do not enable public chat until account settings and preview behavior are checked.
+- Unavailable-model fallback in a **deployed chat-enabled** browser has not been tested. Account auto-top-up settings were not available from the local CLI; no paid fallback or auto-top-up is configured in code. Public Eve chat remains off and must not be claimed as an enabled feature.
 - A representative, independently labeled cultural relevance dataset and measured accuracy/recall remain unavailable. The small primary-source review exposes retrieval misses; fixture passes are not an accuracy metric.
 - Venue-page/programme review remains incomplete for many returned and non-returned places. Qloo metadata and the spot-checked operator pages cannot confirm a specific future schedule, ticket, or availability.
-- The current branch is pushed to `origin/feat/scene-agent-upgrade`. These Vercel projects are not connected to a Git repository, so pushing did not auto-deploy; the protected previews above were deployed manually. Production deployment, video, and submission remain separate.
+- These Vercel projects are not connected to a Git repository, so releases were performed and checked manually. The production app and API are live; the video and Devpost submission remain user-owned. The feature branch is being aligned with the release evidence; do not infer a main-branch merge until Git confirms it.
 
 ## Trust boundary
 

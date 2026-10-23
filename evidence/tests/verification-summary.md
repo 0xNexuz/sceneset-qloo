@@ -1,6 +1,6 @@
 # SceneSet verification summary
 
-Release candidate on `feat/scene-agent-upgrade`, updated 2026-10-22. The tested backend and frontend production builds are now promoted to the public SceneSet domains; separate protected previews were used before release.
+Production release, verified 2026-10-22 and branch-aligned 2026-10-23. The tested backend and frontend production builds are promoted to the public SceneSet domains; separate protected previews were used before release. `main` contains the feature release through `c653e5c`.
 
 ## Executed
 
@@ -31,7 +31,7 @@ Release candidate on `feat/scene-agent-upgrade`, updated 2026-10-22. The tested 
 - Unavailable-model fallback in a **deployed chat-enabled** browser has not been tested. Account auto-top-up settings were not available from the local CLI; no paid fallback or auto-top-up is configured in code. Public Eve chat remains off and must not be claimed as an enabled feature.
 - A representative, independently labeled cultural relevance dataset and measured accuracy/recall remain unavailable. The small primary-source review exposes retrieval misses; fixture passes are not an accuracy metric.
 - Venue-page/programme review remains incomplete for many returned and non-returned places. Qloo metadata and the spot-checked operator pages cannot confirm a specific future schedule, ticket, or availability.
-- These Vercel projects are not connected to a Git repository, so releases were performed and checked manually. The production app and API are live; the video and Devpost submission remain user-owned. The feature branch is being aligned with the release evidence; do not infer a main-branch merge until Git confirms it.
+- These Vercel projects are not connected to a Git repository, so releases were performed and checked manually. The production app and API are live, and `main` was fast-forwarded and pushed through `c653e5c`. The video and Devpost submission remain user-owned.
 
 ## Trust boundary
 

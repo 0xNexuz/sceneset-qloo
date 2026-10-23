@@ -9,7 +9,7 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 ## Git and milestone state
 
 - Base: `dbf6c58` on `main`; work is on local branch `feat/scene-agent-upgrade`.
-- The feature branch was pushed through `7f8d49c`; final release-evidence changes are pending a new commit. The default branch must be checked after the merge rather than assumed current.
+- Production release evidence was committed at `c653e5c`; `main` was fast-forwarded to that commit and pushed to `origin/main`. The feature branch was already pushed through the same commit before the merge.
 - Backend production deployment `dpl_G7a7R4SMnhSDJAiVC7gUASh3Z6LL` and frontend `dpl_2iSBKZwYFA3WiyoxpdoTqo1Z2j3P` were staged, verified, and promoted. The public URLs in README now serve this upgrade. Vercel projects are not connected to Git, so the deployments were manual.
 
 ## Verified implementation
@@ -49,4 +49,4 @@ SceneSet is a Qloo-grounded city-scene discovery app for the Qloo Agentic Hackat
 
 ## Next action and authorization boundary
 
-The public core discovery flow is verified and live. Finish the Git branch alignment and accurate release-evidence commit, then leave video and Devpost submission to the user. Public Eve chat remains off until deployed fallback and billing settings are checked. Broader venue/programme review and an independent relevance dataset remain future quality work, not evidence already achieved.
+The public core discovery flow is verified and live, and `main` contains the release. The user owns the video and Devpost submission. Public Eve chat remains off until deployed fallback and billing settings are checked. Broader venue/programme review and an independent relevance dataset remain future quality work, not evidence already achieved.
